@@ -51,6 +51,7 @@ Add a new site profile entry with the following format:
   "site_key": {
     "name": "Site Name",
     "domainPattern": "domain_regex_or_keyword",
+    "chapterUrlPattern": "pattern_to_match_chapter_pages_only",
     "imageSelector": ".chapter-images-selector img",
     "imageUrlAttribute": "data-original|data-src|src",
     "titleSelector": ".manga-title-selector",
@@ -58,7 +59,9 @@ Add a new site profile entry with the following format:
     "referer": "https://www.target-domain.com/"
   }
 ```
-*Note:* The domain pattern is a simple regex keyword like `mangaball` or `nettruyen` matching the hostname.
+*Note:* 
+- `domainPattern` is a simple regex keyword (like `mangaball` or `comic\\.naver\\.com`) matching the site hostname.
+- `chapterUrlPattern` is a regex/substring pattern (like `chapter-detail` or `detail|viewer`) used to distinguish chapter reading pages from browsing pages (like home/list pages). This prevents false "Page structure error" messages on homepages.
 
 ### Step 4: Verify Content Extraction
 Verify that the selector fetches the images correctly on the test page.
@@ -91,7 +94,29 @@ After editing `config/sites.json`, write the changes. When running the extension
 2. Check if a download task can successfully run using the background download handler.
 3. Validate that image files are successfully downloaded to the subdirectory structure.
 
-### Step 6: Log Progress and Session State for Agent Continuity
+### Step 6: Integrate Search Support for the New Site
+When adding a new site, you should enable search integration in the **"Tìm Truyện"** popup search tab by updating the backend query logic:
+
+1. **Analyze Search Mechanism**:
+   - Trace the site's search requests in Chrome DevTools to find the search URL/endpoint.
+   - Determine if it is a simple `GET` (e.g., Naver Webtoon `/api/search/all?keyword={query}`) or a secure `POST` (e.g., MangaBall `/api/v1/smart-search/search/` requiring cookies and CSRF headers).
+
+2. **Implement in `background/background.js`**:
+   - Locate the `searchManga(query)` function in [background.js](file:///c:/Users/Sea%20Flower/Pictures/manga%20downloader/background/background.js).
+   - Add a search handler block inside a `try-catch` wrapper.
+   - Query the search endpoint, parse the response, and format each result item as follows:
+     ```javascript
+     results.push({
+       title: itemTitle,       // Cleaned title string
+       author: itemAuthor,     // Author name or 'Nhiều tác giả'
+       thumbnail: itemCover,   // Absolute URL to cover thumbnail
+       url: itemUrl,           // Absolute URL to manga title details page
+       source: siteName,       // Readable source name (e.g. 'MangaBall')
+       sourceKey: siteKey      // Matching config key (e.g. 'mangaball')
+     });
+     ```
+
+### Step 7: Log Progress and Session State for Agent Continuity
 To ensure that subsequent sessions or different models can continue smoothly without losing progress:
 1. **Always update a session log**: Create or append to a log file named `session_log.md` (or update `walkthrough.md` / `task.md` in the current brain workspace) after making changes or analyzing a site.
 2. **Include critical metadata**:
