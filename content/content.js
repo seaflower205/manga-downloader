@@ -4,6 +4,29 @@
   let pageChapterImages = [];
   const BRIDGE_ID = '__manga_dl_bridge__';
 
+  // Security: Escape HTML to prevent XSS when inserting into innerHTML
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.appendChild(document.createTextNode(str));
+    return div.innerHTML;
+  }
+
+  // Security: Validate regex pattern to prevent ReDoS attacks
+  function safeRegexTest(pattern, input) {
+    try {
+      // Only allow simple domain patterns (alphanumeric, dots, backslashes, brackets)
+      if (!/^[a-zA-Z0-9.\\\[\]\-_|^$*+?(){}]+$/.test(pattern)) {
+        console.warn('Manga Downloader: Rejected unsafe regex pattern:', pattern);
+        return false;
+      }
+      const re = new RegExp(pattern, 'i');
+      return re.test(input);
+    } catch (e) {
+      console.warn('Manga Downloader: Invalid regex pattern:', pattern, e);
+      return false;
+    }
+  }
+
   // Read data from the DOM bridge element (written by grabber.js in MAIN world)
   function readBridge() {
     const bridge = document.getElementById(BRIDGE_ID);
@@ -54,8 +77,7 @@
   let matchedKey = null;
 
   for (const [key, site] of Object.entries(stored.sites)) {
-    const pattern = new RegExp(site.domainPattern, 'i');
-    if (pattern.test(currentUrl)) {
+    if (safeRegexTest(site.domainPattern, currentUrl)) {
       matchedSite = site;
       matchedKey = key;
       break;
@@ -383,12 +405,12 @@
     }
 
     panel.innerHTML = `
-      <div class="manga-dl-title">${title}</div>
-      <div class="manga-dl-subtitle">${chapter}</div>
+      <div class="manga-dl-title">${escapeHtml(title)}</div>
+      <div class="manga-dl-subtitle">${escapeHtml(chapter)}</div>
       <div class="manga-dl-info">
         <div class="manga-dl-info-row">
           <span class="manga-dl-info-label">Nguồn:</span>
-          <span class="manga-dl-info-value">${matchedSite.name}</span>
+          <span class="manga-dl-info-value">${escapeHtml(matchedSite.name)}</span>
         </div>
         <div class="manga-dl-info-row">
           <span class="manga-dl-info-label">Số trang:</span>

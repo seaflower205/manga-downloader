@@ -72,13 +72,14 @@ chrome.alarms.onAlarm.addListener((alarm) => {
   }
 });
 
-// Helper to convert ArrayBuffer to Base64 safely
+// Helper to convert ArrayBuffer to Base64 safely (chunk-based for large buffers)
 function arrayBufferToBase64(buffer) {
   const bytes = new Uint8Array(buffer);
+  const chunkSize = 8192;
   let binary = '';
-  const len = bytes.byteLength;
-  for (let i = 0; i < len; i++) {
-    binary += String.fromCharCode(bytes[i]);
+  for (let offset = 0; offset < bytes.length; offset += chunkSize) {
+    const chunk = bytes.subarray(offset, Math.min(offset + chunkSize, bytes.length));
+    binary += String.fromCharCode.apply(null, chunk);
   }
   return btoa(binary);
 }
