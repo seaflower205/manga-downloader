@@ -1,3 +1,7 @@
-# Ignore cloned design system library
-ui-ux-pro-max-skill/
-temp_skill/
+# OS metadata files
+.DS_Store
+Thumbs.db
+
+# Local development files
+*.log
+temp/
