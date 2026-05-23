@@ -2,22 +2,48 @@
 
 (async function () {
   let pageChapterImages = [];
+  const BRIDGE_ID = '__manga_dl_bridge__';
 
-  // Listen for the custom event from the page's main world
-  document.addEventListener('MangaDownloaderData', (e) => {
-    if (e.detail && Array.isArray(e.detail.chapterImages)) {
-      pageChapterImages = e.detail.chapterImages;
-      console.log(`Manga Downloader: Intercepted ${pageChapterImages.length} images from page context.`);
-      
-      // Update UI button dynamically if it was in warning state
-      const mainBtn = document.querySelector('.manga-dl-btn');
-      if (mainBtn && pageChapterImages.length > 0) {
-        mainBtn.style.background = ''; // reset to default CSS style
-        mainBtn.style.color = '';
-        mainBtn.innerHTML = '<span class="manga-dl-icon"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span> <span>Tải Manga</span>';
+  // Read data from the DOM bridge element (written by grabber.js in MAIN world)
+  function readBridge() {
+    const bridge = document.getElementById(BRIDGE_ID);
+    if (bridge && bridge.textContent) {
+      try {
+        const data = JSON.parse(bridge.textContent);
+        if (Array.isArray(data) && data.length > 0 && data.length !== pageChapterImages.length) {
+          pageChapterImages = data;
+          console.log(`Manga Downloader: Intercepted ${pageChapterImages.length} images from page context via DOM bridge.`);
+          updateButtonState();
+        }
+      } catch (e) {
+        console.warn('Manga Downloader: Failed to parse bridge data', e);
       }
     }
-  });
+  }
+
+  // Update UI button dynamically when images are found
+  function updateButtonState() {
+    const mainBtn = document.querySelector('.manga-dl-btn');
+    if (mainBtn && pageChapterImages.length > 0) {
+      mainBtn.style.background = ''; // reset to default CSS style
+      mainBtn.style.color = '';
+      mainBtn.innerHTML = '<span class="manga-dl-icon"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span> <span>Tải Manga</span>';
+    }
+  }
+
+  // Watch for the bridge element to appear or change (MutationObserver)
+  const observer = new MutationObserver(() => readBridge());
+  observer.observe(document.documentElement, { childList: true, subtree: true, characterData: true });
+
+  // Also poll periodically for reliability (some sites have dynamic loading)
+  let bridgeChecks = 0;
+  const bridgeInterval = setInterval(() => {
+    readBridge();
+    if (++bridgeChecks > 40 || pageChapterImages.length > 0) {
+      clearInterval(bridgeInterval);
+      observer.disconnect(); // Stop observing once data is found or timeout
+    }
+  }, 300);
 
   // Load site configurations
   const stored = await chrome.storage.local.get('sites');
@@ -311,6 +337,7 @@
   document.body.appendChild(container);
 
   // Set initial state of main button based on images count
+  readBridge(); // Check if grabber.js already wrote data
   const initialImages = getImages();
   if (initialImages.length === 0) {
     mainBtn.style.background = 'linear-gradient(135deg, #f59e0b, #ef4444)';
