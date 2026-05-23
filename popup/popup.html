@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manga Downloader Premium</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="logo-area">
+        <span class="logo-icon">⚡</span>
+        <div>
+          <h1>Manga Downloader</h1>
+          <p class="tagline">Premium Utility Edition</p>
+        </div>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="app-tabs">
+      <button class="tab-btn active" data-tab="sites-list">
+        <span>🌐</span> Trang Hỗ Trợ
+      </button>
+      <button class="tab-btn" data-tab="add-site">
+        <span>⚙️</span> Thêm Cấu Hình
+      </button>
+    </nav>
+
+    <!-- Content Sections -->
+    <main class="app-content">
+      <!-- Supported Sites Tab -->
+      <section id="sites-list" class="tab-content active">
+        <div class="section-title-row">
+          <h2>Danh sách Website hỗ trợ</h2>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <button id="btn-sync-github" class="btn-cancel" style="padding: 4px 10px; font-size: 11px; margin-top: 0; line-height: 1; border-color: rgba(99, 102, 241, 0.4); color: #d8b4fe;" title="Cập nhật cấu hình mới nhất từ GitHub">☁️ Sync GitHub</button>
+            <button id="btn-reset-defaults" class="btn-cancel" style="padding: 4px 10px; font-size: 11px; margin-top: 0; line-height: 1;" title="Đặt lại cấu hình gốc từ file sites.json">🔄 Reset</button>
+            <span class="count-badge" id="sites-count">0</span>
+          </div>
+        </div>
+        <div class="sites-grid" id="sites-container">
+          <!-- Dynamically populated -->
+        </div>
+      </section>
+
+      <!-- Add/Edit Config Tab -->
+      <section id="add-site" class="tab-content">
+        <h2>Cấu hình trang truyện mới</h2>
+        <form id="config-form" class="config-form">
+          <input type="hidden" id="edit-key" value="">
+          
+          <div class="form-group">
+            <label for="site-name">Tên Website</label>
+            <input type="text" id="site-name" placeholder="Ví dụ: NetTruyen" required>
+          </div>
+
+          <div class="form-group">
+            <label for="site-domain">Mẫu tên miền (Regex Pattern)</label>
+            <input type="text" id="site-domain" placeholder="Ví dụ: nettruyen|nhattruyen" required>
+          </div>
+
+          <div class="form-group">
+            <label for="image-selector">CSS Selector ảnh truyện</label>
+            <input type="text" id="image-selector" placeholder="Ví dụ: .page-chapter img" required>
+          </div>
+
+          <div class="form-group">
+            <label for="image-attr">Thuộc tính chứa URL ảnh</label>
+            <input type="text" id="image-attr" placeholder="Ví dụ: data-original|src" value="data-original|src">
+          </div>
+
+          <div class="grid-2-cols">
+            <div class="form-group">
+              <label for="title-selector">Selector Tên truyện</label>
+              <input type="text" id="title-selector" placeholder="Ví dụ: .txt-primary a">
+            </div>
+            <div class="form-group">
+              <label for="chapter-selector">Selector Tên chapter</label>
+              <input type="text" id="chapter-selector" placeholder="Ví dụ: h1.txt-primary">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="site-referer">Referer bypass (URL gốc)</label>
+            <input type="text" id="site-referer" placeholder="Ví dụ: https://www.nettruyennew.com/">
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-submit">Lưu cấu hình</button>
+            <button type="button" class="btn-cancel" id="btn-cancel-edit" style="display: none;">Hủy sửa</button>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>Manga Downloader © 2026. Thiết kế cao cấp & thông minh.</p>
+    </footer>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
