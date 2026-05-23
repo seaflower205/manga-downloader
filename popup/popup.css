@@ -522,6 +522,12 @@ h2 {
   gap: 8px;
 }
 
+.status-alert.success {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  color: #a7f3d0;
+}
+
 .status-alert.warning {
   background: rgba(245, 158, 11, 0.1);
   border: 1px solid rgba(245, 158, 11, 0.25);
@@ -864,6 +870,24 @@ body.light-theme .btn-icon:hover {
 body.light-theme .sites-grid::-webkit-scrollbar-thumb,
 body.light-theme .search-results-grid::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, 0.12);
+}
+
+body.light-theme .status-alert.success {
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.2);
+  color: #065f46;
+}
+
+body.light-theme .status-alert.warning {
+  background: rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.2);
+  color: #92400e;
+}
+
+body.light-theme .status-alert.error {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.2);
+  color: #991b1b;
 }
 
 

@@ -366,7 +366,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       } else {
         notificationArea.innerHTML = `
-          <div class="status-alert" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.25); color: #a7f3d0;">
+          <div class="status-alert success">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="alert-svg"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
             <div class="alert-content">
               <div><strong>Đã hỗ trợ:</strong> Tiện ích đã nhận dạng và sẵn sàng tải trên trang <code>${matchedSite.name}</code>!</div>
