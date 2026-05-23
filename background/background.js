@@ -334,5 +334,80 @@ async function searchManga(query) {
     console.error('Error searching Naver Webtoon:', err);
   }
   
+  // 3. Search on MangaDex
+  try {
+    const dexRes = await fetch('https://api.mangadex.org/manga?title=' + encodeURIComponent(query) + '&limit=10&includes[]=cover_art', {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+      }
+    });
+    const dexJson = await dexRes.json();
+    if (dexJson && dexJson.data) {
+      dexJson.data.forEach(m => {
+        const titleMap = m.attributes.title;
+        const title = titleMap.en || titleMap.ja || titleMap['ja-ro'] || Object.values(titleMap)[0] || 'MangaDex Title';
+        
+        // Find cover filename
+        const coverRel = m.relationships.find(r => r.type === 'cover_art');
+        const coverFile = coverRel && coverRel.attributes ? coverRel.attributes.fileName : '';
+        const thumbnail = coverFile ? `https://uploads.mangadex.org/covers/${m.id}/${coverFile}.256.jpg` : 'https://mangadex.org/avatar.png';
+        
+        results.push({
+          title: title.trim(),
+          author: 'Nhiều tác giả',
+          thumbnail,
+          url: `https://mangadex.org/title/${m.id}`,
+          source: 'MangaDex',
+          sourceKey: 'mangadex'
+        });
+      });
+    }
+  } catch (err) {
+    console.error('Error searching MangaDex:', err);
+  }
+  
+  // 4. Search on MangaPlaza
+  try {
+    const plazaRes = await fetch('https://mangaplaza.com/searchresult/?fre=' + encodeURIComponent(query), {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+      }
+    });
+    const html = await plazaRes.text();
+    const listIndex = html.indexOf('class="listBox"');
+    if (listIndex !== -1) {
+      const listHtml = html.substring(listIndex);
+      const liRegex = /<li>([\s\S]*?)<\/li>/gi;
+      let match;
+      while ((match = liRegex.exec(listHtml)) !== null && results.length < 40) {
+        const liContent = match[1];
+        
+        const titleMatch = liContent.match(/class="titleName"[\s\S]*?<a href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/i);
+        if (!titleMatch) continue;
+        const href = titleMatch[1];
+        const title = titleMatch[2].replace(/<[^>]+>/g, '').trim();
+        const url = href.startsWith('http') ? href : 'https://mangaplaza.com' + href;
+        
+        const imgMatch = liContent.match(/class="thumBlock"[\s\S]*?<img src="([^"]+)"/i);
+        const thumbnail = imgMatch ? imgMatch[1] : '';
+        
+        const authorMatch = liContent.match(/class="authorName"[\s\S]*?<a[^>]*>([\s\S]*?)<\/a>/i);
+        const author = authorMatch ? authorMatch[1].replace(/<[^>]+>/g, '').trim() : 'Nhiều tác giả';
+        
+        results.push({
+          title,
+          author,
+          thumbnail,
+          url,
+          source: 'MangaPlaza',
+          sourceKey: 'mangaplaza'
+        });
+      }
+    }
+  } catch (err) {
+    console.error('Error searching MangaPlaza:', err);
+  }
+  
   return results;
 }
+

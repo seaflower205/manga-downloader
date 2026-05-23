@@ -18,5 +18,25 @@
     "titleSelector": "h2.title, .title, .title_area .title",
     "chapterSelector": "h3.title, .sub_title, .EpisodeHeader__title",
     "referer": "https://comic.naver.com/"
+  },
+  "mangaplaza": {
+    "name": "MangaPlaza",
+    "domainPattern": "mangaplaza",
+    "chapterUrlPattern": "speedreader",
+    "imageSelector": "img[src^=\"blob:\"]",
+    "imageUrlAttribute": "src",
+    "titleSelector": "#menu_header_tittle",
+    "chapterSelector": "",
+    "referer": "https://reader.mangaplaza.com/"
+  },
+  "mangadex": {
+    "name": "MangaDex",
+    "domainPattern": "mangadex",
+    "chapterUrlPattern": "chapter",
+    "imageSelector": ".md--page img",
+    "imageUrlAttribute": "src",
+    "titleSelector": "a.reader--header-manga",
+    "chapterSelector": ".reader--header-title",
+    "referer": "https://mangadex.org/"
   }
 }
