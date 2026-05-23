@@ -2,6 +2,7 @@
   "mangaball": {
     "name": "MangaBall",
     "domainPattern": "mangaball",
+    "chapterUrlPattern": "chapter-detail",
     "imageSelector": ".manga-page img, img.manga-image",
     "imageUrlAttribute": "data-src|src",
     "titleSelector": "h6.text-white",
@@ -11,6 +12,7 @@
   "naverwebtoon": {
     "name": "Naver Webtoon",
     "domainPattern": "comic\\.naver\\.com",
+    "chapterUrlPattern": "detail|viewer",
     "imageSelector": ".wt_viewer img, #section_viewer img, .viewer img",
     "imageUrlAttribute": "data-original|data-src|src",
     "titleSelector": "h2.title, .title, .title_area .title",
