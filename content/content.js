@@ -289,6 +289,13 @@
   container.appendChild(mainBtn);
   document.body.appendChild(container);
 
+  // Set initial state of main button based on images count
+  const initialImages = getImages();
+  if (initialImages.length === 0) {
+    mainBtn.style.background = 'linear-gradient(135deg, #f59e0b, #ef4444)';
+    mainBtn.innerHTML = '<span class="manga-dl-icon">⚠️</span> <span>Lỗi cấu trúc trang</span>';
+  }
+
   // Toggle panel visibility
   mainBtn.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -297,9 +304,27 @@
     const { title, chapter } = getMetadata();
     const images = getImages();
 
-    // Determine target size description
+    // Refresh button state dynamically in case images loaded later
+    if (images.length === 0) {
+      mainBtn.style.background = 'linear-gradient(135deg, #f59e0b, #ef4444)';
+      mainBtn.innerHTML = '<span class="manga-dl-icon">⚠️</span> <span>Lỗi cấu trúc trang</span>';
+    } else {
+      mainBtn.style.background = '';
+      mainBtn.innerHTML = '<span class="manga-dl-icon">⚡</span> <span>Tải Manga</span>';
+    }
+
+    // Determine target size description and action button HTML
     let targetDesc = `${images.length} ảnh gốc`;
-    if (images.length > 30) {
+    let actionBtnHtml = `<button class="manga-dl-start-btn" id="manga-dl-action-btn">Tải Chapter Này</button>`;
+
+    if (images.length === 0) {
+      targetDesc = `<span style="color: #ef4444; font-weight: bold;">⚠️ 0 ảnh (Lỗi cấu trúc)</span>`;
+      actionBtnHtml = `
+        <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.25); color: #fca5a5; padding: 12px; border-radius: 12px; font-size: 11px; line-height: 1.4; text-align: center;">
+          ⚠️ <strong>Cấu trúc trang web đã thay đổi!</strong> Không tìm thấy hình ảnh nào bằng bộ lọc hiện tại. Vui lòng kiểm tra hoặc cập nhật lại cấu hình selectors.
+        </div>
+      `;
+    } else if (images.length > 30) {
       const groupSize = Math.ceil(images.length / 20);
       const finalCount = Math.ceil(images.length / groupSize);
       targetDesc = `${images.length} ảnh gốc (sẽ gộp thành ~${finalCount} trang dài)`;
@@ -318,7 +343,7 @@
           <span class="manga-dl-info-value">${targetDesc}</span>
         </div>
       </div>
-      <button class="manga-dl-start-btn" id="manga-dl-action-btn">Tải Chapter Này</button>
+      ${actionBtnHtml}
       <div id="manga-dl-progress-container" style="display: none;">
         <div class="manga-dl-progress-bar">
           <div class="manga-dl-progress-fill" id="manga-dl-progress-fill"></div>
@@ -331,14 +356,10 @@
 
     // Action listener inside panel
     const actionBtn = panel.querySelector('#manga-dl-action-btn');
-    actionBtn.addEventListener('click', async () => {
-      if (images.length === 0) {
-        alert('Không tìm thấy hình ảnh nào để tải! Vui lòng kiểm tra lại cấu trúc trang.');
-        return;
-      }
-
-      actionBtn.style.display = 'none';
-      const progressContainer = panel.querySelector('#manga-dl-progress-container');
+    if (actionBtn) {
+      actionBtn.addEventListener('click', async () => {
+        actionBtn.style.display = 'none';
+        const progressContainer = panel.querySelector('#manga-dl-progress-container');
       const progressFill = panel.querySelector('#manga-dl-progress-fill');
       const statusText = panel.querySelector('#manga-dl-status-text');
 
@@ -446,7 +467,8 @@
         }
       });
     });
-  });
+  }
+});
 
   // Close panel when clicking outside
   document.addEventListener('click', () => {

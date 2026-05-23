@@ -215,6 +215,67 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Check active tab site status
+  async function checkActiveTabStatus() {
+    if (typeof chrome === 'undefined' || !chrome.tabs) return;
+
+    try {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (!tab || !tab.url || !tab.url.startsWith('http')) return;
+
+      const data = await chrome.storage.local.get('sites');
+      const sites = data.sites || {};
+      
+      let matchedSite = null;
+      for (const [key, site] of Object.entries(sites)) {
+        const pattern = new RegExp(site.domainPattern, 'i');
+        if (pattern.test(tab.url)) {
+          matchedSite = site;
+          break;
+        }
+      }
+
+      const notificationArea = document.getElementById('status-notification-area');
+      if (!notificationArea) return;
+
+      if (!matchedSite) {
+        // Only show if it looks like a manga page to avoid annoying users on google/etc.
+        const isLikelyManga = /chapter|chap|truyen|manga|comic|detail/i.test(tab.url);
+        if (isLikelyManga) {
+          const urlObj = new URL(tab.url);
+          const host = urlObj.hostname.replace('www.', '');
+          
+          notificationArea.innerHTML = `
+            <div class="status-alert warning">
+              <div><strong>⚠️ Trang chưa được hỗ trợ:</strong> Trang web <code>${host}</code> này chưa được đăng ký trong danh sách cấu hình.</div>
+              <button class="status-alert-btn" id="btn-quick-add">➕ Thêm cấu hình nhanh cho trang này</button>
+            </div>
+          `;
+          
+          document.getElementById('btn-quick-add').addEventListener('click', () => {
+            const domainKeywords = host.split('.')[0];
+            siteNameInput.value = domainKeywords.charAt(0).toUpperCase() + domainKeywords.slice(1);
+            siteDomainInput.value = domainKeywords;
+            siteRefererInput.value = urlObj.origin + '/';
+            
+            // Focus and click the Add Config Tab
+            const addTab = document.querySelector('[data-tab="add-site"]');
+            if (addTab) addTab.click();
+          });
+        }
+      } else {
+        notificationArea.innerHTML = `
+          <div class="status-alert" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.25); color: #a7f3d0;">
+            <div><strong>✅ Đã hỗ trợ:</strong> Extension đã nhận dạng trang <code>${matchedSite.name}</code>!</div>
+          </div>
+        `;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
   // Initial load
   loadSites();
+  checkActiveTabStatus();
 });
