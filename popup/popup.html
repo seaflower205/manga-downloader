@@ -36,6 +36,10 @@
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
         <span>Trang Hỗ Trợ</span>
       </button>
+      <button class="tab-btn" data-tab="search-manga-tab">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <span>Tìm Truyện</span>
+      </button>
       <button class="tab-btn" data-tab="add-site">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
         <span>Thêm Cấu Hình</span>
@@ -70,6 +74,30 @@
         </div>
         <div class="sites-grid" id="sites-container">
           <!-- Dynamically populated -->
+        </div>
+      </section>
+
+      <!-- Search Manga Tab -->
+      <section id="search-manga-tab" class="tab-content">
+        <h2>Tìm kiếm truyện & tác giả</h2>
+        <div class="search-wrapper">
+          <span class="search-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </span>
+          <input type="text" id="manga-search-input" placeholder="Tên truyện hoặc tác giả..." autocomplete="off">
+          <button id="btn-manga-search" class="btn-submit" style="width: auto; margin-left: 8px; padding: 0 14px; height: 36px; flex: initial; margin-top: 0;">Tìm</button>
+        </div>
+        
+        <div class="search-results-container" style="margin-top: 14px;">
+          <div id="manga-search-loading" style="display: none; text-align: center; padding: 30px 10px;">
+            <div class="spinner" style="margin: 0 auto 10px auto;"></div>
+            <span style="color: var(--text-secondary); font-size: 12px;">Đang tìm trên các website...</span>
+          </div>
+          <div id="manga-search-results" class="search-results-grid">
+            <div style="text-align: center; color: var(--text-secondary); padding: 40px 20px;">
+              Nhập từ khóa ở trên và bấm Tìm.
+            </div>
+          </div>
         </div>
       </section>
 

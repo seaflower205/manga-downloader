@@ -4,6 +4,10 @@ importScripts('../utils/jszip.min.js');
 // Initialize default site profiles from sites.json
 chrome.runtime.onInstalled.addListener(async () => {
   try {
+    // Clear any existing alarms for security
+    await chrome.alarms.clearAll();
+    console.log('Periodic alarms cleared for security.');
+
     const response = await fetch(chrome.runtime.getURL('config/sites.json'));
     const sites = await response.json();
     const stored = await chrome.storage.local.get('sites');
@@ -23,11 +27,6 @@ chrome.runtime.onInstalled.addListener(async () => {
     if (!data.githubRepo) {
       await chrome.storage.local.set({ githubRepo: 'seaflower205/manga-downloader' });
     }
-
-    // Set up periodic sync alarm (every 6 hours)
-    await chrome.alarms.create('github-sync-alarm', { periodInMinutes: 360 });
-    // Run an initial sync on install
-    await updateSitesFromGithub();
 
   } catch (error) {
     console.error('Failed to initialize sites configuration:', error);
@@ -65,12 +64,7 @@ async function updateSitesFromGithub() {
   }
 }
 
-// Alarm listener for periodic update check
-chrome.alarms.onAlarm.addListener((alarm) => {
-  if (alarm.name === 'github-sync-alarm') {
-    updateSitesFromGithub();
-  }
-});
+// Periodic alarm listener removed for security (manual sync only)
 
 // Helper to convert ArrayBuffer to Base64 safely (chunk-based for large buffers)
 function arrayBufferToBase64(buffer) {
@@ -235,4 +229,110 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     });
     return true; // Keep channel open for async response
   }
+
+  // 5. Search manga across registered websites
+  if (message.type === 'SEARCH_MANGA') {
+    const { query } = message.data;
+    searchManga(query).then(results => {
+      sendResponse({ success: true, results });
+    }).catch(err => {
+      sendResponse({ success: false, error: err.message });
+    });
+    return true; // Keep channel open for async response
+  }
 });
+
+// Helper function to search manga across websites in the background
+async function searchManga(query) {
+  const results = [];
+  
+  // 1. Search on MangaBall
+  try {
+    // Fetch homepage to get CSRF token and session cookies
+    const homeRes = await fetch('https://mangaball.net/', {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+      }
+    });
+    const html = await homeRes.text();
+    const csrfMatch = html.match(/csrf-token["']\s*content=["']([^"']+)["']/i);
+    const cookies = homeRes.headers.get('set-cookie');
+    const cookieHeader = cookies ? cookies.split(',').map(c => c.split(';')[0].trim()).join('; ') : '';
+    
+    if (csrfMatch) {
+      const csrfToken = csrfMatch[1];
+      const searchRes = await fetch('https://mangaball.net/api/v1/smart-search/search/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'X-CSRF-TOKEN': csrfToken,
+          'Cookie': cookieHeader
+        },
+        body: 'search_input=' + encodeURIComponent(query)
+      });
+      const searchJson = await searchRes.json();
+      if (searchJson && searchJson.code === 200 && searchJson.data && searchJson.data.manga) {
+        searchJson.data.manga.forEach(m => {
+          results.push({
+            title: m.title.split('(')[0].trim(), // Clean alternative titles
+            author: m.displayAuthor || 'Nhiều tác giả',
+            thumbnail: m.img.startsWith('http') ? m.img : 'https://mangaball.net' + m.img,
+            url: m.url.startsWith('http') ? m.url : 'https://mangaball.net' + m.url,
+            source: 'MangaBall',
+            sourceKey: 'mangaball'
+          });
+        });
+      }
+    }
+  } catch (err) {
+    console.error('Error searching MangaBall:', err);
+  }
+
+  // 2. Search on Naver Webtoon
+  try {
+    const naverRes = await fetch('https://comic.naver.com/api/search/all?keyword=' + encodeURIComponent(query), {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Referer': 'https://comic.naver.com/'
+      }
+    });
+    const naverJson = await naverRes.json();
+    
+    const parseNaverList = (list) => {
+      if (!list) return;
+      list.forEach(item => {
+        let listUrl = 'https://comic.naver.com/webtoon/list?titleId=' + item.titleId;
+        if (item.webtoonLevelCode === 'BEST_CHALLENGE') {
+          listUrl = 'https://comic.naver.com/bestChallenge/list?titleId=' + item.titleId;
+        } else if (item.webtoonLevelCode === 'CHALLENGE') {
+          listUrl = 'https://comic.naver.com/challenge/list?titleId=' + item.titleId;
+        }
+        results.push({
+          title: item.titleName,
+          author: item.displayAuthor || 'Nhiều tác giả',
+          thumbnail: item.thumbnailUrl,
+          url: listUrl,
+          source: 'Naver Webtoon',
+          sourceKey: 'naverwebtoon'
+        });
+      });
+    };
+    
+    if (naverJson) {
+      if (naverJson.searchWebtoonResult && naverJson.searchWebtoonResult.searchViewList) {
+        parseNaverList(naverJson.searchWebtoonResult.searchViewList);
+      }
+      if (naverJson.searchBestChallengeResult && naverJson.searchBestChallengeResult.searchViewList) {
+        parseNaverList(naverJson.searchBestChallengeResult.searchViewList);
+      }
+      if (naverJson.searchChallengeResult && naverJson.searchChallengeResult.searchViewList) {
+        parseNaverList(naverJson.searchChallengeResult.searchViewList);
+      }
+    }
+  } catch (err) {
+    console.error('Error searching Naver Webtoon:', err);
+  }
+  
+  return results;
+}

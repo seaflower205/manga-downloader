@@ -387,6 +387,95 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Manga search implementation
+  const mangaSearchInput = document.getElementById('manga-search-input');
+  const btnMangaSearch = document.getElementById('btn-manga-search');
+  const mangaSearchLoading = document.getElementById('manga-search-loading');
+  const mangaSearchResults = document.getElementById('manga-search-results');
+
+  async function performMangaSearch() {
+    const query = mangaSearchInput.value.trim();
+    if (!query) return;
+
+    mangaSearchLoading.style.display = 'block';
+    mangaSearchResults.innerHTML = '';
+
+    if (typeof chrome === 'undefined' || !chrome.runtime || !chrome.runtime.sendMessage) {
+      mangaSearchLoading.style.display = 'none';
+      mangaSearchResults.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">Trình duyệt không hỗ trợ tìm kiếm trực tiếp.</div>';
+      return;
+    }
+
+    chrome.runtime.sendMessage({
+      type: 'SEARCH_MANGA',
+      data: { query }
+    }, (response) => {
+      mangaSearchLoading.style.display = 'none';
+
+      if (response && response.success) {
+        const results = response.results || [];
+        if (results.length === 0) {
+          mangaSearchResults.innerHTML = `
+            <div style="text-align: center; color: var(--text-secondary); padding: 40px 20px;">
+              Không tìm thấy truyện hoặc tác giả nào phù hợp trên các website hỗ trợ.
+            </div>
+          `;
+          return;
+        }
+
+        mangaSearchResults.innerHTML = '';
+        results.forEach(item => {
+          const card = document.createElement('div');
+          card.className = 'search-result-card';
+          
+          card.innerHTML = `
+            <img src="${item.thumbnail}" class="search-result-cover" alt="cover" onerror="this.src='../icons/icon48.png'">
+            <div class="search-result-info">
+              <div class="search-result-title" title="${item.title}">${item.title}</div>
+              <div class="search-result-meta">
+                <span class="search-result-source ${item.sourceKey}">${item.source}</span>
+                <span class="search-result-author" title="${item.author}">${item.author}</span>
+              </div>
+            </div>
+            <button class="btn-icon open-btn search-result-open" data-url="${item.url}" title="Mở truyện">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </button>
+          `;
+
+          // Add click event to open button
+          card.querySelector('.search-result-open').addEventListener('click', (e) => {
+            e.stopPropagation();
+            chrome.tabs.create({ url: item.url });
+          });
+
+          // Also clicking the card itself opens the url
+          card.style.cursor = 'pointer';
+          card.addEventListener('click', () => {
+            chrome.tabs.create({ url: item.url });
+          });
+
+          mangaSearchResults.appendChild(card);
+        });
+      } else {
+        const errMsg = response ? response.error : 'Lỗi không xác định';
+        mangaSearchResults.innerHTML = `
+          <div style="text-align: center; color: var(--color-danger); padding: 20px;">
+            Lỗi khi tìm kiếm: ${errMsg}
+          </div>
+        `;
+      }
+    });
+  }
+
+  if (btnMangaSearch && mangaSearchInput) {
+    btnMangaSearch.addEventListener('click', performMangaSearch);
+    mangaSearchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        performMangaSearch();
+      }
+    });
+  }
+
   // Initial load
   loadSites();
   checkActiveTabStatus();
