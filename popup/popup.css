@@ -270,7 +270,8 @@ h2 {
   pointer-events: none;
 }
 
-#site-search {
+#site-search,
+#manga-search-input {
   width: 100%;
   padding: 9px 12px 9px 34px;
   background-color: var(--bg-input);
@@ -282,7 +283,8 @@ h2 {
   transition: var(--transition-smooth);
 }
 
-#site-search:focus {
+#site-search:focus,
+#manga-search-input:focus {
   outline: none;
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
@@ -405,6 +407,8 @@ h2 {
 }
 
 .form-group input {
+  width: 100%;
+  box-sizing: border-box;
   padding: 9px 12px;
   background-color: var(--bg-input);
   border: 1px solid var(--border-glass);
