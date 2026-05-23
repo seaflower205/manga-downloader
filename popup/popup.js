@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       const openButtonHtml = openUrl 
-        ? `<button class="btn-icon open-btn launch-btn" data-url="${openUrl}" title="Mở nhanh trang web: ${openUrl}">🚀</button>`
+        ? `<button class="btn-icon open-btn launch-btn" data-url="${openUrl}" title="Mở nhanh trang web: ${openUrl}"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button>`
         : '';
 
       card.innerHTML = `
@@ -106,8 +106,8 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
         <div class="site-actions">
           ${openButtonHtml}
-          <button class="btn-icon edit-btn" data-key="${key}" title="Sửa">✏️</button>
-          <button class="btn-icon delete delete-btn" data-key="${key}" title="Xóa">🗑️</button>
+          <button class="btn-icon edit-btn" data-key="${key}" title="Sửa"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4Z"/></svg></button>
+          <button class="btn-icon delete delete-btn" data-key="${key}" title="Xóa"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>
         </div>
       `;
       sitesContainer.appendChild(card);
@@ -271,13 +271,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // Sync from GitHub repo
   const syncBtn = document.getElementById('btn-sync-github');
   if (syncBtn) {
+    const syncSpan = syncBtn.querySelector('span');
     syncBtn.addEventListener('click', () => {
       syncBtn.disabled = true;
-      syncBtn.textContent = '⏳ Syncing...';
+      if (syncSpan) syncSpan.textContent = 'Syncing...';
       
       chrome.runtime.sendMessage({ type: 'TRIGGER_GITHUB_SYNC' }, (response) => {
         syncBtn.disabled = false;
-        syncBtn.textContent = '☁️ Sync GitHub';
+        if (syncSpan) syncSpan.textContent = 'Sync GitHub';
         
         if (response && response.success) {
           loadSites();
@@ -341,8 +342,14 @@ document.addEventListener('DOMContentLoaded', () => {
           
           notificationArea.innerHTML = `
             <div class="status-alert warning">
-              <div><strong>⚠️ Trang chưa được hỗ trợ:</strong> Trang web <code>${host}</code> này chưa được đăng ký trong danh sách cấu hình.</div>
-              <button class="status-alert-btn" id="btn-quick-add">➕ Thêm cấu hình nhanh cho trang này</button>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="alert-svg"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              <div class="alert-content">
+                <div><strong>Trang chưa được hỗ trợ:</strong> Trang web <code>${host}</code> này chưa được đăng ký trong danh sách cấu hình.</div>
+                <button class="status-alert-btn" id="btn-quick-add">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  <span>Thêm cấu hình nhanh cho trang này</span>
+                </button>
+              </div>
             </div>
           `;
           
@@ -360,7 +367,10 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         notificationArea.innerHTML = `
           <div class="status-alert" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.25); color: #a7f3d0;">
-            <div><strong>✅ Đã hỗ trợ:</strong> Extension đã nhận dạng trang <code>${matchedSite.name}</code>!</div>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="alert-svg"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <div class="alert-content">
+              <div><strong>Đã hỗ trợ:</strong> Tiện ích đã nhận dạng và sẵn sàng tải trên trang <code>${matchedSite.name}</code>!</div>
+            </div>
           </div>
         `;
       }

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Manga Downloader Premium</title>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
@@ -12,9 +12,20 @@
     <!-- Header -->
     <header class="app-header">
       <div class="logo-area">
-        <span class="logo-icon">📥</span>
+        <svg class="app-logo-svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <defs>
+            <linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#3B82F6" />
+              <stop offset="100%" stop-color="#F97316" />
+            </linearGradient>
+          </defs>
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="url(#logo-grad)" />
+          <polyline points="7 10 12 15 17 10" stroke="url(#logo-grad)" />
+          <line x1="12" y1="15" x2="12" y2="3" stroke="url(#logo-grad)" />
+        </svg>
         <div>
           <h1>Manga Downloader</h1>
+          <span class="version-label">Premium v1.0.0</span>
         </div>
       </div>
     </header>
@@ -22,10 +33,12 @@
     <!-- Navigation Tabs -->
     <nav class="app-tabs">
       <button class="tab-btn active" data-tab="sites-list">
-        <span>🌐</span> Trang Hỗ Trợ
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        <span>Trang Hỗ Trợ</span>
       </button>
       <button class="tab-btn" data-tab="add-site">
-        <span>⚙️</span> Thêm Cấu Hình
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+        <span>Thêm Cấu Hình</span>
       </button>
     </nav>
 
@@ -36,15 +49,23 @@
       <!-- Supported Sites Tab -->
       <section id="sites-list" class="tab-content active">
         <div class="section-title-row">
-          <h2>Danh sách Website hỗ trợ</h2>
-          <div style="display: flex; gap: 8px; align-items: center;">
-            <button id="btn-sync-github" class="btn-cancel" style="padding: 4px 10px; font-size: 11px; margin-top: 0; line-height: 1; border-color: rgba(99, 102, 241, 0.4); color: #d8b4fe;" title="Cập nhật cấu hình mới nhất từ GitHub">☁️ Sync GitHub</button>
-            <button id="btn-reset-defaults" class="btn-cancel" style="padding: 4px 10px; font-size: 11px; margin-top: 0; line-height: 1;" title="Đặt lại cấu hình gốc từ file sites.json">🔄 Reset</button>
+          <h2>Website đã hỗ trợ</h2>
+          <div class="header-action-group">
+            <button id="btn-sync-github" class="btn-action-small github-sync" title="Đồng bộ từ GitHub">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19A3.5 3.5 0 0 0 21 15.5c0-2.79-2.54-4.5-5-4.5-.42-1.89-1.72-3.13-4-3.13a4.7 4.7 0 0 0-4.66 4.31c-2 .22-3.34 1.45-3.34 3.32A3.5 3.5 0 0 0 7.5 19H17.5Z"/><path d="M12 12v6M9 15l3-3 3 3"/></svg>
+              <span>Sync GitHub</span>
+            </button>
+            <button id="btn-reset-defaults" class="btn-action-small reset-defaults" title="Đặt lại mặc định">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg>
+              <span>Reset</span>
+            </button>
             <span class="count-badge" id="sites-count">0</span>
           </div>
         </div>
         <div class="search-wrapper">
-          <span class="search-icon">🔍</span>
+          <span class="search-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </span>
           <input type="text" id="site-search" placeholder="Tìm kiếm trang web..." autocomplete="off">
         </div>
         <div class="sites-grid" id="sites-container">
@@ -104,6 +125,7 @@
 
     <!-- Footer -->
     <footer class="app-footer">
+      <div class="footer-note">Designed with UI/UX Pro Max</div>
     </footer>
   </div>
   <script src="popup.js"></script>
