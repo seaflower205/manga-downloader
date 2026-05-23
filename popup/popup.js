@@ -476,6 +476,42 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Theme Toggle (Sáng/Tối)
+  const themeToggleBtn = document.getElementById('btn-theme-toggle');
+  if (themeToggleBtn) {
+    const sunIcon = themeToggleBtn.querySelector('.icon-sun');
+    const moonIcon = themeToggleBtn.querySelector('.icon-moon');
+
+    const applyTheme = (theme) => {
+      if (theme === 'light') {
+        document.body.classList.add('light-theme');
+        if (sunIcon) sunIcon.style.display = 'block';
+        if (moonIcon) moonIcon.style.display = 'none';
+      } else {
+        document.body.classList.remove('light-theme');
+        if (sunIcon) sunIcon.style.display = 'none';
+        if (moonIcon) moonIcon.style.display = 'block';
+      }
+    };
+
+    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+      chrome.storage.local.get('theme', (data) => {
+        applyTheme(data.theme || 'dark');
+      });
+    } else {
+      applyTheme('dark');
+    }
+
+    themeToggleBtn.addEventListener('click', () => {
+      const isLight = document.body.classList.contains('light-theme');
+      const newTheme = isLight ? 'dark' : 'light';
+      applyTheme(newTheme);
+      if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+        chrome.storage.local.set({ theme: newTheme });
+      }
+    });
+  }
+
   // Initial load
   loadSites();
   checkActiveTabStatus();

@@ -21,6 +21,9 @@
   --text-secondary: #94A3B8;    /* Zinc secondary text */
   --text-muted: #64748B;
   
+  --bg-header: rgba(8, 8, 12, 0.6);
+  --text-logo-grad: linear-gradient(135deg, #ffffff 30%, #e2e8f0 100%);
+  
   --font-family: 'Outfit', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
   
   --transition-smooth: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -54,13 +57,16 @@ body {
   flex-direction: column;
   min-height: 480px;
   background: var(--bg-main);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-glass);
 }
 
 /* Header */
 .app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 16px 20px;
-  background: rgba(8, 8, 12, 0.6);
+  background: var(--bg-header);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border-glass);
@@ -85,7 +91,7 @@ body {
   font-size: 16px;
   font-weight: 700;
   letter-spacing: -0.3px;
-  background: linear-gradient(135deg, #ffffff 30%, #e2e8f0 100%);
+  background: var(--text-logo-grad);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -277,7 +283,7 @@ h2 {
   background-color: var(--bg-input);
   border: 1px solid var(--border-glass);
   border-radius: var(--radius-control);
-  color: #ffffff;
+  color: var(--text-primary);
   font-family: var(--font-family);
   font-size: 12.5px;
   transition: var(--transition-smooth);
@@ -330,7 +336,7 @@ h2 {
 .site-info h3 {
   font-size: 13.5px;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--text-primary);
   letter-spacing: -0.1px;
 }
 
@@ -413,7 +419,7 @@ h2 {
   background-color: var(--bg-input);
   border: 1px solid var(--border-glass);
   border-radius: var(--radius-control);
-  color: #ffffff;
+  color: var(--text-primary);
   font-family: var(--font-family);
   font-size: 12.5px;
   transition: var(--transition-smooth);
@@ -701,4 +707,102 @@ h2 {
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+/* Theme Toggle Button Styling */
+.btn-theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-glass);
+  color: var(--text-secondary);
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  transition: var(--transition-fast);
+  padding: 0;
+  outline: none;
+}
+
+.btn-theme-toggle:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--border-glass-hover);
+  transform: scale(1.05);
+}
+
+.btn-theme-toggle svg {
+  stroke: currentColor;
+  fill: none;
+}
+
+/* High-end Light Glassmorphism Theme (UI/UX Pro Max) */
+body.light-theme {
+  --bg-main: radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.06) 0%, #f1f5f9 100%);
+  --bg-card: rgba(255, 255, 255, 0.65);
+  --bg-card-hover: rgba(255, 255, 255, 0.95);
+  --bg-input: rgba(255, 255, 255, 0.85);
+  --bg-input-focus: rgba(59, 130, 246, 0.02);
+  
+  --border-glass: rgba(15, 23, 42, 0.08);
+  --border-glass-hover: rgba(15, 23, 42, 0.16);
+  --border-focus: rgba(37, 99, 235, 0.35);
+  
+  --text-primary: #0f172a;      /* Slate 900 */
+  --text-secondary: #475569;    /* Slate 600 */
+  --text-muted: #64748b;        /* Slate 500 */
+  
+  --bg-header: rgba(255, 255, 255, 0.4);
+  --text-logo-grad: linear-gradient(135deg, #0f172a 30%, #334155 100%);
+  
+  background-color: #f8fafc;
+}
+
+/* Specific Element Overrides for Light Mode */
+body.light-theme .app-header {
+  background: var(--bg-header);
+}
+
+body.light-theme .btn-theme-toggle {
+  background: rgba(0, 0, 0, 0.03);
+  color: var(--text-secondary);
+}
+
+body.light-theme .btn-theme-toggle:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--text-primary);
+}
+
+body.light-theme .tab-btn:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+body.light-theme .tab-btn.active {
+  background: rgba(59, 130, 246, 0.08);
+  border-color: rgba(59, 130, 246, 0.2);
+}
+
+body.light-theme .btn-action-small {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+body.light-theme .btn-action-small:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+body.light-theme .site-info code {
+  background: rgba(0, 0, 0, 0.04);
+  color: #0f172a;
+}
+
+body.light-theme .search-result-cover {
+  border-color: rgba(0, 0, 0, 0.06);
+  background: rgba(0, 0, 0, 0.03);
+}
+
+body.light-theme .btn-icon:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
 
