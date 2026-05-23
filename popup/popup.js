@@ -18,6 +18,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const chapterSelectorInput = document.getElementById('chapter-selector');
   const siteRefererInput = document.getElementById('site-referer');
 
+  let allSites = {};
+
   // Tab switching
   tabs.forEach(tab => {
     tab.addEventListener('click', () => {
@@ -39,31 +41,71 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const data = await chrome.storage.local.get('sites');
-    const sites = data.sites || {};
+    allSites = data.sites || {};
     
-    sitesContainer.innerHTML = '';
-    const keys = Object.keys(sites);
-    sitesCount.textContent = keys.length;
+    // Clean up nettruyen from local storage if still present
+    if (allSites.nettruyen) {
+      delete allSites.nettruyen;
+      await chrome.storage.local.set({ sites: allSites });
+    }
 
-    if (keys.length === 0) {
+    filterAndRenderSites();
+  }
+
+  // Filter and render site profiles on the DOM
+  function filterAndRenderSites() {
+    const searchQuery = document.getElementById('site-search').value.toLowerCase().trim();
+    sitesContainer.innerHTML = '';
+    
+    const filteredKeys = Object.keys(allSites).filter(key => {
+      const site = allSites[key];
+      return (
+        site.name.toLowerCase().includes(searchQuery) ||
+        site.domainPattern.toLowerCase().includes(searchQuery)
+      );
+    });
+
+    sitesCount.textContent = filteredKeys.length;
+
+    if (filteredKeys.length === 0) {
       sitesContainer.innerHTML = `
         <div style="text-align: center; color: var(--text-secondary); padding: 20px;">
-          Chưa có cấu hình trang nào. Hãy thêm ở tab bên cạnh!
+          ${Object.keys(allSites).length === 0 ? 'Chưa có cấu hình trang nào. Hãy thêm ở tab bên cạnh!' : 'Không tìm thấy trang web nào phù hợp!'}
         </div>
       `;
       return;
     }
 
-    keys.forEach(key => {
-      const site = sites[key];
+    filteredKeys.forEach(key => {
+      const site = allSites[key];
       const card = document.createElement('div');
       card.className = 'site-card';
+      
+      // Determine quick open URL
+      let openUrl = site.referer || '';
+      if (!openUrl && site.domainPattern) {
+        // Fallback to domain pattern if it looks like a clean domain
+        const cleanDomain = site.domainPattern.split('|')[0].replace(/[^a-zA-Z0-9.-]/g, '');
+        if (cleanDomain) {
+          openUrl = `https://${cleanDomain}.com/`;
+        }
+      }
+
+      const openButtonHtml = openUrl 
+        ? `<button class="btn-icon open-btn launch-btn" data-url="${openUrl}" title="Mở nhanh trang web: ${openUrl}">🚀</button>`
+        : '';
+
       card.innerHTML = `
         <div class="site-info">
           <h3>${site.name}</h3>
           <p>Mẫu miền: <code>${site.domainPattern}</code></p>
+          <div class="site-status-container">
+            <span class="status-dot checking" id="status-dot-${key}"></span>
+            <span class="status-text" id="status-text-${key}">Đang kiểm tra...</span>
+          </div>
         </div>
         <div class="site-actions">
+          ${openButtonHtml}
           <button class="btn-icon edit-btn" data-key="${key}" title="Sửa">✏️</button>
           <button class="btn-icon delete delete-btn" data-key="${key}" title="Xóa">🗑️</button>
         </div>
@@ -71,19 +113,71 @@ document.addEventListener('DOMContentLoaded', () => {
       sitesContainer.appendChild(card);
     });
 
-    // Add event listeners to dynamically created edit and delete buttons
+    // Add event listeners to dynamically created launch, edit and delete buttons
+    document.querySelectorAll('.launch-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const url = btn.getAttribute('data-url');
+        if (url) {
+          chrome.tabs.create({ url });
+        }
+      });
+    });
+
     document.querySelectorAll('.edit-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
-        const key = e.target.getAttribute('data-key');
-        editSite(key, sites[key]);
+        const key = e.currentTarget.getAttribute('data-key');
+        editSite(key, allSites[key]);
       });
     });
 
     document.querySelectorAll('.delete-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
-        const key = e.target.getAttribute('data-key');
+        const key = e.currentTarget.getAttribute('data-key');
         deleteSite(key);
       });
+    });
+
+    // Trigger asynchronous status checks via background worker
+    filteredKeys.forEach(key => {
+      const site = allSites[key];
+      let openUrl = site.referer || '';
+      if (!openUrl && site.domainPattern) {
+        const cleanDomain = site.domainPattern.split('|')[0].replace(/[^a-zA-Z0-9.-]/g, '');
+        if (cleanDomain) {
+          openUrl = `https://${cleanDomain}.com/`;
+        }
+      }
+
+      if (openUrl) {
+        chrome.runtime.sendMessage({
+          type: 'PING_SITE',
+          data: { url: openUrl }
+        }, (response) => {
+          const dotEl = document.getElementById(`status-dot-${key}`);
+          const textEl = document.getElementById(`status-text-${key}`);
+          if (dotEl && textEl) {
+            dotEl.classList.remove('checking');
+            if (response && response.online) {
+              dotEl.classList.add('active');
+              textEl.textContent = 'Hoạt động';
+              textEl.style.color = '#10b981';
+            } else {
+              dotEl.classList.add('inactive');
+              textEl.textContent = 'Không hoạt động';
+              textEl.style.color = '#ef4444';
+            }
+          }
+        });
+      } else {
+        const dotEl = document.getElementById(`status-dot-${key}`);
+        const textEl = document.getElementById(`status-text-${key}`);
+        if (dotEl && textEl) {
+          dotEl.classList.remove('checking');
+          dotEl.classList.add('inactive');
+          textEl.textContent = 'Không có URL';
+        }
+      }
     });
   }
 
@@ -273,6 +367,14 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (e) {
       console.error(e);
     }
+  }
+
+  // Search input listener
+  const searchInput = document.getElementById('site-search');
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      filterAndRenderSites();
+    });
   }
 
   // Initial load

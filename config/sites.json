@@ -1,13 +1,4 @@
 {
-  "nettruyen": {
-    "name": "NetTruyen / NhatTruyen",
-    "domainPattern": "nettruyen|nhattruyen",
-    "imageSelector": ".page-chapter img, .reading-detail .page-chapter img",
-    "imageUrlAttribute": "data-original|src",
-    "titleSelector": ".txt-primary a, .breadcrumb li:nth-last-child(2) a",
-    "chapterSelector": ".breadcrumb li:last-child a, .breadcrumb li:last-child span, h1.txt-primary",
-    "referer": "https://www.nettruyennew.com/"
-  },
   "mangaball": {
     "name": "MangaBall",
     "domainPattern": "mangaball",
@@ -16,5 +7,14 @@
     "titleSelector": "h6.text-white",
     "chapterSelector": ".chapter-info h4",
     "referer": "https://mangaball.net/"
+  },
+  "naverwebtoon": {
+    "name": "Naver Webtoon",
+    "domainPattern": "comic\\.naver\\.com",
+    "imageSelector": ".wt_viewer img, #section_viewer img, .viewer img",
+    "imageUrlAttribute": "data-original|data-src|src",
+    "titleSelector": "h2.title, .title, .title_area .title",
+    "chapterSelector": "h3.title, .sub_title, .EpisodeHeader__title",
+    "referer": "https://comic.naver.com/"
   }
 }

@@ -13,8 +13,9 @@ chrome.runtime.onInstalled.addListener(async () => {
     } else {
       // Merge but keep user-defined/updated configurations
       const mergedSites = { ...sites, ...stored.sites };
+      delete mergedSites.nettruyen; // Remove old nettruyen config completely
       await chrome.storage.local.set({ sites: mergedSites });
-      console.log('Site profiles merged and updated.');
+      console.log('Site profiles merged and updated (nettruyen removed).');
     }
 
     // Set default repo if not set
@@ -50,6 +51,7 @@ async function updateSitesFromGithub() {
     
     // Merge: github profiles override local ones if they have the same key, but keep custom local-only keys
     const mergedSites = { ...localSites, ...githubSites };
+    delete mergedSites.nettruyen; // Force delete nettruyen
     await chrome.storage.local.set({ sites: mergedSites, lastSync: Date.now() });
     console.log('Successfully synced sites configuration from GitHub.');
     
@@ -208,5 +210,28 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       sendResponse(res);
     });
     return true;
+  }
+
+  // 4. Ping site to check if it is active (online)
+  if (message.type === 'PING_SITE') {
+    const { url } = message.data;
+    const checkStatus = async () => {
+      try {
+        const response = await fetch(url, { method: 'HEAD' });
+        return response.ok || response.status < 500;
+      } catch (err) {
+        try {
+          const response = await fetch(url, { method: 'GET' });
+          return response.ok || response.status < 500;
+        } catch (e) {
+          return false;
+        }
+      }
+    };
+
+    checkStatus().then(online => {
+      sendResponse({ online });
+    });
+    return true; // Keep channel open for async response
   }
 });
