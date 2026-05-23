@@ -23,6 +23,12 @@
       "matches": ["<all_urls>"],
       "js": ["content/content.js"],
       "run_at": "document_end"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content/grabber.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
     }
   ]
 }

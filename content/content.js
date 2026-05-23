@@ -18,35 +18,6 @@
     }
   });
 
-  // Inject a small script to read the page's global variables
-  function injectContextGrabber() {
-    try {
-      const script = document.createElement('script');
-      script.textContent = `
-        (function() {
-          const sendData = () => {
-            document.dispatchEvent(new CustomEvent('MangaDownloaderData', {
-              detail: {
-                chapterImages: typeof chapterImages !== 'undefined' ? chapterImages : []
-              }
-            }));
-          };
-          sendData();
-          window.addEventListener('load', sendData);
-          let checks = 0;
-          const interval = setInterval(() => {
-            sendData();
-            if (checks++ > 15) clearInterval(interval);
-          }, 300);
-        })();
-      `;
-      (document.head || document.documentElement).appendChild(script);
-      script.remove();
-    } catch (e) {
-      console.error('Failed to inject script:', e);
-    }
-  }
-
   // Load site configurations
   const stored = await chrome.storage.local.get('sites');
   if (!stored.sites) return;
@@ -70,8 +41,6 @@
   }
 
   console.log(`Manga Downloader: Matched site config [${matchedSite.name}]`);
-  
-  injectContextGrabber();
 
   // Inject styles for the premium UI
   const style = document.createElement('style');
