@@ -1,20 +1,20 @@
 :root {
-  /* Apple iOS Glassmorphism System Colors */
-  --bg-primary: #000000; /* Pure black background for deep contrast */
-  --bg-secondary: #0a0a0c; /* Deep black-grey */
-  --bg-card: rgba(255, 255, 255, 0.05); /* Translucent white for glassmorphism */
+  /* Apple Minimalist Monochrome System Colors */
+  --bg-primary: #000000; /* Pure black background */
+  --bg-secondary: #08080c; /* Very deep dark grey */
+  --bg-card: rgba(255, 255, 255, 0.04); /* Translucent white card */
   --bg-card-hover: rgba(255, 255, 255, 0.08);
-  --bg-input: rgba(255, 255, 255, 0.06);
+  --bg-input: rgba(255, 255, 255, 0.05);
   --border-color: rgba(255, 255, 255, 0.08); /* Apple thin lines */
   --text-primary: #ffffff;
-  --text-secondary: #8e8e93; /* Apple system grey */
-  --color-apple-blue: #007aff; /* Apple System Blue */
-  --color-apple-green: #34c759; /* Apple System Green */
-  --color-apple-red: #ff3b30; /* Apple System Red */
+  --text-secondary: #a1a1aa; /* Zinc-400 */
+  --color-apple-blue: #ffffff; /* Monochrome primary is solid white */
+  --color-apple-green: #34c759; /* Kept green for active status */
+  --color-apple-red: #ff3b30; /* Kept red for delete/errors */
   
   /* Gradients */
-  --primary-gradient: linear-gradient(135deg, #007aff, #0051a8);
-  --danger-gradient: linear-gradient(135deg, #ff3b30, #c7251b);
+  --primary-gradient: linear-gradient(180deg, #ffffff 0%, #e4e4e7 100%);
+  --danger-gradient: linear-gradient(180deg, #ff453a 0%, #ff3b30 100%);
   
   --font-family: -apple-system, BlinkMacSystemFont, 'Outfit', 'SF Pro Display', 'SF Pro Text', 'Inter', sans-serif;
 
@@ -25,13 +25,13 @@
   --space-lg: 24px;
   --space-xl: 32px;
 
-  /* Corner Radius (iOS Squircle style) */
+  /* Corner Radius */
   --radius-app: 20px;
   --radius-card: 16px;
   --radius-control: 12px;
   --radius-badge: 10px;
 
-  /* Easing & Animation Tokens */
+  /* Easing & Transition Tokens */
   --transition-smooth: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
   --transition-fast: all 0.15s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
@@ -77,8 +77,7 @@ body {
 
 .logo-icon {
   font-size: 22px;
-  color: var(--color-apple-blue);
-  text-shadow: 0 0 10px rgba(0, 122, 255, 0.4);
+  color: #ffffff;
 }
 
 .logo-area h1 {
@@ -121,9 +120,9 @@ body {
 }
 
 .tab-btn.active {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  color: #000000;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
 }
 
 /* Content Area */
@@ -163,10 +162,10 @@ h2 {
 .count-badge {
   font-size: 11px;
   font-weight: 700;
-  background: var(--color-apple-blue);
+  background: #ffffff;
+  color: #000000;
   padding: 2px 8px;
   border-radius: var(--radius-badge);
-  color: #ffffff;
 }
 
 /* Search wrapper */
@@ -199,8 +198,8 @@ h2 {
 
 #site-search:focus {
   outline: none;
-  border-color: var(--color-apple-blue);
-  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2);
+  border-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15);
   background-color: rgba(255, 255, 255, 0.08);
 }
 
@@ -235,8 +234,9 @@ h2 {
 
 .site-card:hover {
   background-color: var(--bg-card-hover);
-  border-color: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.15);
   transform: scale(1.01);
+  box-shadow: 0 8px 24px -8px rgba(255, 255, 255, 0.1);
 }
 
 .site-info h3 {
@@ -318,8 +318,8 @@ h2 {
 
 .form-group input:focus {
   outline: none;
-  border-color: var(--color-apple-blue);
-  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2);
+  border-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15);
   background-color: rgba(255, 255, 255, 0.08);
 }
 
@@ -338,19 +338,21 @@ h2 {
 .btn-submit {
   flex: 1;
   padding: 12px;
-  background: var(--color-apple-blue);
-  color: #ffffff;
+  background: #ffffff;
+  color: #000000;
   border: none;
   border-radius: var(--radius-control);
   font-weight: 600;
   font-size: 13px;
   cursor: pointer;
   transition: var(--transition-smooth);
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
 }
 
 .btn-submit:hover {
-  background-color: #0066d6;
-  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+  background-color: #e4e4e7;
+  transform: translateY(-1.5px);
+  box-shadow: 0 8px 16px rgba(255, 255, 255, 0.15);
 }
 
 .btn-cancel {

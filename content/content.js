@@ -13,7 +13,8 @@
       const mainBtn = document.querySelector('.manga-dl-btn');
       if (mainBtn && pageChapterImages.length > 0) {
         mainBtn.style.background = ''; // reset to default CSS style
-        mainBtn.innerHTML = '<span class="manga-dl-icon">⚡</span> <span>Tải Manga</span>';
+        mainBtn.style.color = '';
+        mainBtn.innerHTML = '<span class="manga-dl-icon">📥</span> <span>Tải Manga</span>';
       }
     }
   });
@@ -58,21 +59,21 @@
       align-items: center;
       gap: 10px;
       padding: 14px 22px;
-      background: linear-gradient(135deg, #6366f1, #a855f7);
-      color: #ffffff;
+      background: #ffffff;
+      color: #000000;
       border: none;
       border-radius: 16px;
       font-weight: 600;
       font-size: 14px;
       cursor: pointer;
-      box-shadow: 0 8px 32px rgba(99, 102, 241, 0.3);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      backdrop-filter: blur(8px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
       border: 1px solid rgba(255, 255, 255, 0.1);
     }
     .manga-dl-btn:hover {
-      transform: translateY(-3px) scale(1.02);
-      box-shadow: 0 12px 40px rgba(168, 85, 247, 0.5);
+      transform: translateY(-2px);
+      background-color: #e4e4e7;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
     }
     .manga-dl-btn:active {
       transform: translateY(0) scale(0.98);
@@ -85,17 +86,18 @@
       bottom: 70px;
       right: 0;
       width: 320px;
-      background: rgba(20, 20, 25, 0.9);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(10, 10, 12, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 20px;
       padding: 20px;
-      box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(16px) saturate(180%);
+      box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       color: #ffffff;
       transform: translateY(20px) scale(0.95);
       opacity: 0;
       pointer-events: none;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
     .manga-dl-panel.active {
       transform: translateY(0) scale(1);
@@ -113,7 +115,7 @@
     }
     .manga-dl-subtitle {
       font-size: 12px;
-      color: #9ca3af;
+      color: #a1a1aa;
       margin-bottom: 16px;
       white-space: nowrap;
       overflow: hidden;
@@ -136,7 +138,7 @@
       margin-bottom: 0;
     }
     .manga-dl-info-label {
-      color: #9ca3af;
+      color: #a1a1aa;
     }
     .manga-dl-info-value {
       font-weight: 600;
@@ -145,19 +147,19 @@
     .manga-dl-start-btn {
       width: 100%;
       padding: 12px;
-      background: linear-gradient(135deg, #10b981, #059669);
-      color: #ffffff;
+      background: #ffffff;
+      color: #000000;
       border: none;
       border-radius: 12px;
       font-weight: 600;
       font-size: 14px;
       cursor: pointer;
-      transition: all 0.2s ease;
-      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+      transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+      box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
     }
     .manga-dl-start-btn:hover {
-      background: linear-gradient(135deg, #059669, #047857);
-      box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3);
+      background: #e4e4e7;
+      box-shadow: 0 6px 16px rgba(255, 255, 255, 0.15);
     }
     .manga-dl-progress-bar {
       height: 6px;
@@ -169,12 +171,12 @@
     .manga-dl-progress-fill {
       height: 100%;
       width: 0%;
-      background: linear-gradient(90deg, #6366f1, #a855f7);
+      background: #ffffff;
       transition: width 0.3s ease;
     }
     .manga-dl-status-text {
       font-size: 12px;
-      color: #a855f7;
+      color: #ffffff;
       font-weight: 600;
       text-align: center;
       margin-top: 8px;
@@ -300,7 +302,7 @@
 
   const mainBtn = document.createElement('button');
   mainBtn.className = 'manga-dl-btn';
-  mainBtn.innerHTML = '<span class="manga-dl-icon">⚡</span> <span>Tải Manga</span>';
+  mainBtn.innerHTML = '<span class="manga-dl-icon">📥</span> <span>Tải Manga</span>';
 
   container.appendChild(panel);
   container.appendChild(mainBtn);
@@ -309,7 +311,8 @@
   // Set initial state of main button based on images count
   const initialImages = getImages();
   if (initialImages.length === 0) {
-    mainBtn.style.background = 'linear-gradient(135deg, #f59e0b, #ef4444)';
+    mainBtn.style.background = '#ff3b30';
+    mainBtn.style.color = '#ffffff';
     mainBtn.innerHTML = '<span class="manga-dl-icon">⚠️</span> <span>Lỗi cấu trúc trang</span>';
   }
 
@@ -323,11 +326,13 @@
 
     // Refresh button state dynamically in case images loaded later
     if (images.length === 0) {
-      mainBtn.style.background = 'linear-gradient(135deg, #f59e0b, #ef4444)';
+      mainBtn.style.background = '#ff3b30';
+      mainBtn.style.color = '#ffffff';
       mainBtn.innerHTML = '<span class="manga-dl-icon">⚠️</span> <span>Lỗi cấu trúc trang</span>';
     } else {
       mainBtn.style.background = '';
-      mainBtn.innerHTML = '<span class="manga-dl-icon">⚡</span> <span>Tải Manga</span>';
+      mainBtn.style.color = '';
+      mainBtn.innerHTML = '<span class="manga-dl-icon">📥</span> <span>Tải Manga</span>';
     }
 
     // Determine target size description and action button HTML
