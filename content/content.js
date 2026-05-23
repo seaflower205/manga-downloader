@@ -1,6 +1,52 @@
 // Content Script for Manga Downloader Premium
 
 (async function () {
+  let pageChapterImages = [];
+
+  // Listen for the custom event from the page's main world
+  document.addEventListener('MangaDownloaderData', (e) => {
+    if (e.detail && Array.isArray(e.detail.chapterImages)) {
+      pageChapterImages = e.detail.chapterImages;
+      console.log(`Manga Downloader: Intercepted ${pageChapterImages.length} images from page context.`);
+      
+      // Update UI button dynamically if it was in warning state
+      const mainBtn = document.querySelector('.manga-dl-btn');
+      if (mainBtn && pageChapterImages.length > 0) {
+        mainBtn.style.background = ''; // reset to default CSS style
+        mainBtn.innerHTML = '<span class="manga-dl-icon">⚡</span> <span>Tải Manga</span>';
+      }
+    }
+  });
+
+  // Inject a small script to read the page's global variables
+  function injectContextGrabber() {
+    try {
+      const script = document.createElement('script');
+      script.textContent = `
+        (function() {
+          const sendData = () => {
+            document.dispatchEvent(new CustomEvent('MangaDownloaderData', {
+              detail: {
+                chapterImages: typeof chapterImages !== 'undefined' ? chapterImages : []
+              }
+            }));
+          };
+          sendData();
+          window.addEventListener('load', sendData);
+          let checks = 0;
+          const interval = setInterval(() => {
+            sendData();
+            if (checks++ > 15) clearInterval(interval);
+          }, 300);
+        })();
+      `;
+      (document.head || document.documentElement).appendChild(script);
+      script.remove();
+    } catch (e) {
+      console.error('Failed to inject script:', e);
+    }
+  }
+
   // Load site configurations
   const stored = await chrome.storage.local.get('sites');
   if (!stored.sites) return;
@@ -24,6 +70,8 @@
   }
 
   console.log(`Manga Downloader: Matched site config [${matchedSite.name}]`);
+  
+  injectContextGrabber();
 
   // Inject styles for the premium UI
   const style = document.createElement('style');
@@ -237,9 +285,9 @@
   }
 
   function getImages() {
-    // If global chapterImages is defined, return it directly (very robust for sites like mangaball)
-    if (typeof chapterImages !== 'undefined' && Array.isArray(chapterImages) && chapterImages.length > 0) {
-      return chapterImages;
+    // If we intercepted the chapterImages from the main world, return it directly (very robust for sites like mangaball)
+    if (pageChapterImages && pageChapterImages.length > 0) {
+      return pageChapterImages;
     }
 
     const images = [];
