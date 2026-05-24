@@ -264,7 +264,9 @@ function isSafeMangaDexId(value) {
 }
 
 function isSafeRemoteFilename(value) {
-  return /^[0-9A-Za-z._-]{1,180}$/.test(Security.toSafeString(value, 200));
+  return /^[0-9a-fA-F-]{10,40}\.(?:jpg|jpeg|png|webp|gif)$/i.test(
+    Security.toSafeString(value, 60)
+  );
 }
 
 // Main message listener
@@ -597,4 +599,10 @@ async function searchManga(query) {
   }
   
   return results;
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    isSafeRemoteFilename
+  };
 }
