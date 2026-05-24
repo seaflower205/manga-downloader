@@ -1305,11 +1305,7 @@
           });
           imgSlices.sort((a, b) => a.topPercent - b.topPercent);
           const sliceUrls = imgSlices.map(s => s.src);
-          const dataUrls = [];
-          for (const u of sliceUrls) {
-            const du = await fetchBlobAsDataUrl(u);
-            dataUrls.push(du);
-          }
+          const dataUrls = await Promise.all(sliceUrls.map(u => fetchBlobAsDataUrl(u)));
           return { type: 'merged', urls: dataUrls };
         }
         return null;
