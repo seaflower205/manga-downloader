@@ -4,7 +4,14 @@
   const BRIDGE_ID = '__manga_dl_bridge__';
 
   const sendData = () => {
+    let images = [];
     if (typeof chapterImages !== 'undefined' && Array.isArray(chapterImages) && chapterImages.length > 0) {
+      images = chapterImages;
+    } else if (typeof thzq !== 'undefined' && Array.isArray(thzq) && thzq.length > 0) {
+      images = thzq;
+    }
+
+    if (images.length > 0) {
       // Create or update a hidden DOM element with the data
       let bridge = document.getElementById(BRIDGE_ID);
       if (!bridge) {
@@ -14,7 +21,7 @@
         bridge.style.display = 'none';
         (document.head || document.documentElement).appendChild(bridge);
       }
-      bridge.textContent = JSON.stringify(chapterImages);
+      bridge.textContent = JSON.stringify(images);
     }
   };
 
@@ -36,4 +43,15 @@
       clearInterval(interval);
     }
   }, 300);
+
+  // Listen for navigation requests from the content script
+  document.addEventListener('manga-dl-navigate', (e) => {
+    if (e.detail && e.detail.direction) {
+      if (e.detail.direction === 'prev' && typeof window.BBAppPrevPage === 'function') {
+        window.BBAppPrevPage();
+      } else if (e.detail.direction === 'next' && typeof window.BBAppNextPage === 'function') {
+        window.BBAppNextPage();
+      }
+    }
+  });
 })();

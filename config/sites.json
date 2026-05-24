@@ -38,5 +38,16 @@
     "titleSelector": "a.reader--header-manga",
     "chapterSelector": ".reader--header-title",
     "referer": "https://mangadex.org/"
+  },
+  "mangakatana": {
+    "name": "MangaKatana",
+    "domainPattern": "mangakatana",
+    "chapterUrlPattern": "/c[0-9.]",
+    "imageSelector": "#imgs .wrap_img img",
+    "imageUrlAttribute": "data-src|src",
+    "titleSelector": "#breadcrumb_wrap .uk-breadcrumb li:nth-child(2) span[property=\"name\"]",
+    "chapterSelector": "#breadcrumb_wrap .uk-breadcrumb li.uk-active span",
+    "referer": "https://mangakatana.com/"
   }
 }
+

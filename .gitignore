@@ -6,8 +6,21 @@ Thumbs.db
 *.log
 temp/
 *.zip
+session_log.md
+walkthrough.md
+task.md
+AGENT_SECURITY_TASK.md
+diagnostics/
+captured_dom/
+error_reports/
 
 # External tools (not part of the extension)
 ui-ux-pro-max-skill/
 UX/
 SKILL.md
+chrome-profile/
+chrome-profile-debug/
+chrome-profile-temp/
+launch_chrome.bat
+chrome_start.log
+*.png
