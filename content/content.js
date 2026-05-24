@@ -1369,7 +1369,17 @@
           else sizeStr = `${(bytes / 1024).toFixed(1)} KB`;
           
           if (previewSizeText) {
-            previewSizeText.innerHTML = `<span style="color: #60A5FA;">${selectedFormat.toUpperCase()}</span>: <strong>${sizeStr}</strong>`;
+            previewSizeText.textContent = '';
+            const spanFormat = document.createElement('span');
+            spanFormat.style.color = '#60A5FA';
+            spanFormat.textContent = selectedFormat.toUpperCase();
+
+            const strongSize = document.createElement('strong');
+            strongSize.textContent = sizeStr;
+
+            previewSizeText.appendChild(spanFormat);
+            previewSizeText.appendChild(document.createTextNode(': '));
+            previewSizeText.appendChild(strongSize);
           }
 
           const totalPages = isMangaPlazaSpeedreader() ? getMangaPlazaTotalPages() : getImages().length;
