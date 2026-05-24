@@ -25,3 +25,4 @@ chrome-profile-temp/
 launch_chrome.bat
 chrome_start.log
 *.png
+node_modules/
