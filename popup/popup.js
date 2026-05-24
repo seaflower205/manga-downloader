@@ -30,14 +30,46 @@ document.addEventListener('DOMContentLoaded', () => {
   let allSites = {};
   let pinnedSites = [];
  
+  const createSvgElement = (tag, attrs, children = []) => {
+    const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+    for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+    for (const child of children) el.appendChild(child);
+    return el;
+  };
+
   const ICONS = {
-    open: '<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>',
-    edit: '<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4Z"/></svg>',
-    delete: '<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>',
-    warning: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="alert-svg"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
-    success: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="alert-svg"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
-    pin: '<svg class="icon-pin" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 0 0-.44-1.24l-2.78-3.5A2 2 0 0 1 15 9.26V5a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4.26a2 2 0 0 1-.78 1.54l-2.78 3.5a2 2 0 0 0-.44 1.24V17Z"/></svg>',
-    pinned: '<svg class="icon-pin pinned" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 0 0-.44-1.24l-2.78-3.5A2 2 0 0 1 15 9.26V5a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4.26a2 2 0 0 1-.78 1.54l-2.78 3.5a2 2 0 0 0-.44 1.24V17Z"/></svg>'
+    open: () => createSvgElement('svg', { xmlns: "http://www.w3.org/2000/svg", width: "13", height: "13", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", "stroke-width": "2.5", "stroke-linecap": "round", "stroke-linejoin": "round" }, [
+      createSvgElement('path', { d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" }),
+      createSvgElement('polyline', { points: "15 3 21 3 21 9" }),
+      createSvgElement('line', { x1: "10", y1: "14", x2: "21", y2: "3" })
+    ]),
+    edit: () => createSvgElement('svg', { xmlns: "http://www.w3.org/2000/svg", width: "13", height: "13", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", "stroke-width": "2.5", "stroke-linecap": "round", "stroke-linejoin": "round" }, [
+      createSvgElement('path', { d: "M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" }),
+      createSvgElement('path', { d: "M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4Z" })
+    ]),
+    delete: () => createSvgElement('svg', { xmlns: "http://www.w3.org/2000/svg", width: "13", height: "13", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", "stroke-width": "2.5", "stroke-linecap": "round", "stroke-linejoin": "round" }, [
+      createSvgElement('polyline', { points: "3 6 5 6 21 6" }),
+      createSvgElement('path', { d: "M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" }),
+      createSvgElement('line', { x1: "10", y1: "11", x2: "10", y2: "17" }),
+      createSvgElement('line', { x1: "14", y1: "11", x2: "14", y2: "17" })
+    ]),
+    warning: () => createSvgElement('svg', { xmlns: "http://www.w3.org/2000/svg", width: "18", height: "18", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", "stroke-width": "2", "stroke-linecap": "round", "stroke-linejoin": "round", "class": "alert-svg" }, [
+      createSvgElement('path', { d: "m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" }),
+      createSvgElement('line', { x1: "12", y1: "9", x2: "12", y2: "13" }),
+      createSvgElement('line', { x1: "12", y1: "17", x2: "12.01", y2: "17" })
+    ]),
+    success: () => createSvgElement('svg', { xmlns: "http://www.w3.org/2000/svg", width: "18", height: "18", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", "stroke-width": "2", "stroke-linecap": "round", "stroke-linejoin": "round", "class": "alert-svg" }, [
+      createSvgElement('path', { d: "M22 11.08V12a10 10 0 1 1-5.93-9.14" }),
+      createSvgElement('polyline', { points: "22 4 12 14.01 9 11.01" })
+    ]),
+    pin: () => createSvgElement('svg', { "class": "icon-pin", xmlns: "http://www.w3.org/2000/svg", width: "13", height: "13", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", "stroke-width": "2.5", "stroke-linecap": "round", "stroke-linejoin": "round" }, [
+      createSvgElement('line', { x1: "12", y1: "17", x2: "12", y2: "22" }),
+      createSvgElement('path', { d: "M5 17h14v-1.76a2 2 0 0 0-.44-1.24l-2.78-3.5A2 2 0 0 1 15 9.26V5a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4.26a2 2 0 0 1-.78 1.54l-2.78 3.5a2 2 0 0 0-.44 1.24V17Z" })
+    ]),
+    pinned: () => createSvgElement('svg', { "class": "icon-pin pinned", xmlns: "http://www.w3.org/2000/svg", width: "13", height: "13", viewBox: "0 0 24 24", fill: "currentColor", stroke: "currentColor", "stroke-width": "2", "stroke-linecap": "round", "stroke-linejoin": "round" }, [
+      createSvgElement('line', { x1: "12", y1: "17", x2: "12", y2: "22" }),
+      createSvgElement('path', { d: "M5 17h14v-1.76a2 2 0 0 0-.44-1.24l-2.78-3.5A2 2 0 0 1 15 9.26V5a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4.26a2 2 0 0 1-.78 1.54l-2.78 3.5a2 2 0 0 0-.44 1.24V17Z" })
+    ])
   };
 
   function clearElement(el) {
@@ -52,12 +84,16 @@ document.addEventListener('DOMContentLoaded', () => {
     return el;
   }
 
-  function makeIconButton(className, title, icon) {
+  function makeIconButton(className, title, iconFn) {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = className;
     btn.title = title;
-    btn.innerHTML = icon;
+    if (typeof iconFn === 'function') {
+      btn.appendChild(iconFn());
+    } else if (iconFn instanceof Node) {
+      btn.appendChild(iconFn);
+    }
     return btn;
   }
 
@@ -379,15 +415,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  function makeStatusAlert(type, icon, builder) {
+  function makeStatusAlert(type, iconFn, builder) {
     const alertBox = document.createElement('div');
     alertBox.className = `status-alert ${type}`;
-    const iconWrap = document.createElement('span');
-    iconWrap.innerHTML = icon;
     const content = document.createElement('div');
     content.className = 'alert-content';
     builder(content);
-    alertBox.append(iconWrap.firstElementChild, content);
+    const iconNode = typeof iconFn === 'function' ? iconFn() : (iconFn instanceof Node ? iconFn : document.createElement('span'));
+    alertBox.append(iconNode, content);
     return alertBox;
   }
 
@@ -598,9 +633,12 @@ document.addEventListener('DOMContentLoaded', () => {
     let textEl = diagnosticStatus.querySelector('.status-text');
     
     if (!indicatorEl || !textEl) {
-      diagnosticStatus.innerHTML = '<span class="status-indicator"></span><span class="status-text"></span>';
-      indicatorEl = diagnosticStatus.querySelector('.status-indicator');
-      textEl = diagnosticStatus.querySelector('.status-text');
+      diagnosticStatus.textContent = '';
+      indicatorEl = document.createElement('span');
+      indicatorEl.className = 'status-indicator';
+      textEl = document.createElement('span');
+      textEl.className = 'status-text';
+      diagnosticStatus.append(indicatorEl, textEl);
     }
     
     textEl.textContent = text;
