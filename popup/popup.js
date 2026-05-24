@@ -57,6 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.type = 'button';
     btn.className = className;
     btn.title = title;
+    btn.setAttribute('aria-label', title);
     btn.innerHTML = icon;
     return btn;
   }
