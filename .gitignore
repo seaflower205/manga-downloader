@@ -5,6 +5,7 @@ Thumbs.db
 # Local development files
 *.log
 temp/
+build/
 *.zip
 session_log.md
 walkthrough.md
