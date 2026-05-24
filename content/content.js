@@ -230,8 +230,18 @@
     }
   }
 
-  // Watch for the bridge element to appear or change (MutationObserver)
-  const observer = new MutationObserver(() => readBridge());
+  // ⚡ Bolt: Throttled MutationObserver to prevent excessive main-thread blocking
+  // on content-heavy pages where many nodes are added rapidly.
+  // This reduces expensive DOM queries from potentially thousands per second down to a few.
+  let readBridgeTimeout = null;
+  const observer = new MutationObserver(() => {
+    if (!readBridgeTimeout) {
+      readBridgeTimeout = setTimeout(() => {
+        readBridge();
+        readBridgeTimeout = null;
+      }, 250);
+    }
+  });
   observer.observe(document.documentElement, { childList: true, subtree: true, characterData: true });
 
   // Also poll periodically for reliability (some sites have dynamic loading)
