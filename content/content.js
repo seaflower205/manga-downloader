@@ -1185,29 +1185,27 @@
       <button class="manga-dl-close-btn" id="manga-dl-close-btn">
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
-      <div class="manga-dl-title">${escapeHtml(title)}</div>
-      <div class="manga-dl-subtitle">${escapeHtml(chapter)}</div>
+      <div class="manga-dl-title" id="manga-dl-title"></div>
+      <div class="manga-dl-subtitle" id="manga-dl-subtitle"></div>
       <div class="manga-dl-info">
         <div class="manga-dl-info-row">
           <span class="manga-dl-info-label">Nguồn:</span>
-          <span class="manga-dl-info-value">${escapeHtml(matchedSite.name)}</span>
+          <span class="manga-dl-info-value" id="manga-dl-source"></span>
         </div>
         <div class="manga-dl-info-row">
           <span class="manga-dl-info-label">Số trang:</span>
-          <span class="manga-dl-info-value">${targetDesc}</span>
+          <span class="manga-dl-info-value" id="manga-dl-pages"></span>
         </div>
-        ${hasContent ? `
-        <div class="manga-dl-format-row">
+        <div class="manga-dl-format-row" id="manga-dl-format-row" style="display: none;">
           <span class="manga-dl-format-label">Định dạng tải:</span>
           <div class="manga-dl-custom-select" id="manga-dl-custom-select">
             <div class="manga-dl-select-trigger" id="manga-dl-select-trigger">
-              <span class="manga-dl-select-trigger-text">
-                ${savedFormat.toUpperCase()}
+              <span class="manga-dl-select-trigger-text" id="manga-dl-select-trigger-text">
               </span>
               <svg class="manga-dl-select-arrow" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
             </div>
             <div class="manga-dl-select-options" id="manga-dl-select-options">
-              <div class="manga-dl-select-option ${savedFormat === 'jpg' ? 'selected' : ''}" data-value="jpg">
+              <div class="manga-dl-select-option" data-value="jpg" id="manga-dl-opt-jpg">
                 <div class="manga-dl-option-icon-wrap">
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                 </div>
@@ -1219,7 +1217,7 @@
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                 </div>
               </div>
-              <div class="manga-dl-select-option ${savedFormat === 'jpeg' ? 'selected' : ''}" data-value="jpeg">
+              <div class="manga-dl-select-option" data-value="jpeg" id="manga-dl-opt-jpeg">
                 <div class="manga-dl-option-icon-wrap">
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                 </div>
@@ -1231,7 +1229,7 @@
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                 </div>
               </div>
-              <div class="manga-dl-select-option ${savedFormat === 'png' ? 'selected' : ''}" data-value="png">
+              <div class="manga-dl-select-option" data-value="png" id="manga-dl-opt-png">
                 <div class="manga-dl-option-icon-wrap">
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M12 8v8M8 12h8"/></svg>
                 </div>
@@ -1243,7 +1241,7 @@
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                 </div>
               </div>
-              <div class="manga-dl-select-option ${savedFormat === 'webp' ? 'selected' : ''}" data-value="webp">
+              <div class="manga-dl-select-option" data-value="webp" id="manga-dl-opt-webp">
                 <div class="manga-dl-option-icon-wrap">
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
                 </div>
@@ -1258,7 +1256,6 @@
             </div>
           </div>
         </div>
-        ` : ''}
       </div>
       <div class="manga-dl-preview-container" id="manga-dl-preview-container" style="display: none;">
         <div class="manga-dl-preview-box">
@@ -1273,7 +1270,7 @@
           </div>
         </div>
       </div>
-      ${actionBtnHtml}
+      <div id="manga-dl-action-container"></div>
       <div id="manga-dl-progress-container" style="display: none;">
         <div class="manga-dl-progress-bar">
           <div class="manga-dl-progress-fill" id="manga-dl-progress-fill"></div>
@@ -1281,6 +1278,22 @@
         <div class="manga-dl-status-text" id="manga-dl-status-text">Đang tải: 0%</div>
       </div>
     `;
+
+    // Populate dynamic fields safely via DOM APIs
+    panel.querySelector('#manga-dl-title').textContent = title;
+    panel.querySelector('#manga-dl-subtitle').textContent = chapter;
+    panel.querySelector('#manga-dl-source').textContent = matchedSite.name;
+    panel.querySelector('#manga-dl-pages').textContent = targetDesc;
+
+    if (hasContent) {
+      panel.querySelector('#manga-dl-format-row').style.display = 'flex';
+      panel.querySelector('#manga-dl-select-trigger-text').textContent = savedFormat.toUpperCase();
+      panel.querySelector(`#manga-dl-opt-${savedFormat}`).classList.add('selected');
+    }
+
+    // Set actionBtnHtml correctly
+    const actionContainer = panel.querySelector('#manga-dl-action-container');
+    actionContainer.innerHTML = actionBtnHtml; // Note: actionBtnHtml does not contain user input, only static strings
 
     // Helper functions for Preview inside panel context
     const getSampleImage = async () => {
@@ -1369,7 +1382,15 @@
           else sizeStr = `${(bytes / 1024).toFixed(1)} KB`;
           
           if (previewSizeText) {
-            previewSizeText.innerHTML = `<span style="color: #60A5FA;">${selectedFormat.toUpperCase()}</span>: <strong>${sizeStr}</strong>`;
+            previewSizeText.textContent = '';
+            const spanFormat = document.createElement('span');
+            spanFormat.style.color = '#60A5FA';
+            spanFormat.textContent = selectedFormat.toUpperCase();
+            previewSizeText.appendChild(spanFormat);
+            previewSizeText.appendChild(document.createTextNode(': '));
+            const strongSize = document.createElement('strong');
+            strongSize.textContent = sizeStr;
+            previewSizeText.appendChild(strongSize);
           }
 
           const totalPages = isMangaPlazaSpeedreader() ? getMangaPlazaTotalPages() : getImages().length;
