@@ -1,0 +1,4 @@
+## 2024-05-25 - Prevent innerHTML interpolation in Safe DOM Rendering
+**Vulnerability:** A cross-site scripting (XSS) vulnerability was present due to string interpolation into `innerHTML`. Furthermore, an `escapeHtml` function existed that created text nodes but subsequently read them back out using `div.innerHTML`, providing a false sense of security and potentially failing to prevent execution in complex contexts or violating Safe DOM Rendering guidelines.
+**Learning:** Using `innerHTML` with variable interpolation is unsafe. Attempting to sanitize by reading `.innerHTML` off a temporary text node is a code-smell and defeats the purpose of safe DOM APIs.
+**Prevention:** Strictly enforce Safe DOM Rendering policies by eliminating `innerHTML` assignments that include dynamic data. Always use `document.createElement()`, `appendChild()`, and `.textContent` for assigning variables or text.

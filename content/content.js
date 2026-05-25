@@ -72,13 +72,6 @@
     });
   }
 
-  // Security: Escape HTML to prevent XSS when inserting into innerHTML
-  function escapeHtml(str) {
-    const div = document.createElement('div');
-    div.appendChild(document.createTextNode(str));
-    return div.innerHTML;
-  }
-
   // Security: Validate regex pattern to prevent ReDoS attacks
   function safeRegexTest(pattern, input) {
     const ok = Security.safeRegexTest(pattern, input);
@@ -1185,25 +1178,23 @@
       <button class="manga-dl-close-btn" id="manga-dl-close-btn">
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
-      <div class="manga-dl-title">${escapeHtml(title)}</div>
-      <div class="manga-dl-subtitle">${escapeHtml(chapter)}</div>
+      <div class="manga-dl-title" id="manga-dl-title-val"></div>
+      <div class="manga-dl-subtitle" id="manga-dl-subtitle-val"></div>
       <div class="manga-dl-info">
         <div class="manga-dl-info-row">
           <span class="manga-dl-info-label">Nguồn:</span>
-          <span class="manga-dl-info-value">${escapeHtml(matchedSite.name)}</span>
+          <span class="manga-dl-info-value" id="manga-dl-source-val"></span>
         </div>
         <div class="manga-dl-info-row">
           <span class="manga-dl-info-label">Số trang:</span>
-          <span class="manga-dl-info-value">${targetDesc}</span>
+          <span class="manga-dl-info-value" id="manga-dl-pages-val"></span>
         </div>
         ${hasContent ? `
         <div class="manga-dl-format-row">
           <span class="manga-dl-format-label">Định dạng tải:</span>
           <div class="manga-dl-custom-select" id="manga-dl-custom-select">
             <div class="manga-dl-select-trigger" id="manga-dl-select-trigger">
-              <span class="manga-dl-select-trigger-text">
-                ${savedFormat.toUpperCase()}
-              </span>
+              <span class="manga-dl-select-trigger-text" id="manga-dl-format-val"></span>
               <svg class="manga-dl-select-arrow" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
             </div>
             <div class="manga-dl-select-options" id="manga-dl-select-options">
@@ -1281,6 +1272,14 @@
         <div class="manga-dl-status-text" id="manga-dl-status-text">Đang tải: 0%</div>
       </div>
     `;
+
+    panel.querySelector('#manga-dl-title-val').textContent = title;
+    panel.querySelector('#manga-dl-subtitle-val').textContent = chapter;
+    panel.querySelector('#manga-dl-source-val').textContent = matchedSite.name;
+    panel.querySelector('#manga-dl-pages-val').textContent = targetDesc;
+    if (hasContent) {
+      panel.querySelector('#manga-dl-format-val').textContent = savedFormat.toUpperCase();
+    }
 
     // Helper functions for Preview inside panel context
     const getSampleImage = async () => {
@@ -1369,7 +1368,17 @@
           else sizeStr = `${(bytes / 1024).toFixed(1)} KB`;
           
           if (previewSizeText) {
-            previewSizeText.innerHTML = `<span style="color: #60A5FA;">${selectedFormat.toUpperCase()}</span>: <strong>${sizeStr}</strong>`;
+            previewSizeText.textContent = '';
+            const span = document.createElement('span');
+            span.style.color = '#60A5FA';
+            span.textContent = selectedFormat.toUpperCase();
+
+            const strong = document.createElement('strong');
+            strong.textContent = sizeStr;
+
+            previewSizeText.appendChild(span);
+            previewSizeText.appendChild(document.createTextNode(': '));
+            previewSizeText.appendChild(strong);
           }
 
           const totalPages = isMangaPlazaSpeedreader() ? getMangaPlazaTotalPages() : getImages().length;
