@@ -987,6 +987,7 @@
     }
 
     const images = [];
+    const seen = new Set();
     const selectors = matchedSite.imageSelector.split(',');
     const attributes = (matchedSite.imageUrlAttribute || 'src').split('|');
 
@@ -1014,7 +1015,9 @@
           src = Security.normalizeUrl(img.src, { baseUrl: window.location.href, allowHttp: true });
         }
 
-        if (src && !images.includes(src)) {
+        // ⚡ Bolt: Use O(1) Set lookup instead of O(N) Array.includes() for performance
+        if (src && !seen.has(src)) {
+          seen.add(src);
           images.push(src);
         }
       });
