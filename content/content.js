@@ -74,9 +74,13 @@
 
   // Security: Escape HTML to prevent XSS when inserting into innerHTML
   function escapeHtml(str) {
-    const div = document.createElement('div');
-    div.appendChild(document.createTextNode(str));
-    return div.innerHTML;
+    return String(str || '').replace(/[&<>"']/g, m => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;'
+    })[m]);
   }
 
   // Security: Validate regex pattern to prevent ReDoS attacks
@@ -1369,7 +1373,13 @@
           else sizeStr = `${(bytes / 1024).toFixed(1)} KB`;
           
           if (previewSizeText) {
-            previewSizeText.innerHTML = `<span style="color: #60A5FA;">${selectedFormat.toUpperCase()}</span>: <strong>${sizeStr}</strong>`;
+            previewSizeText.textContent = '';
+            const fmtSpan = document.createElement('span');
+            fmtSpan.style.color = '#60A5FA';
+            fmtSpan.textContent = String(selectedFormat).toUpperCase();
+            const valStrong = document.createElement('strong');
+            valStrong.textContent = sizeStr;
+            previewSizeText.append(fmtSpan, ': ', valStrong);
           }
 
           const totalPages = isMangaPlazaSpeedreader() ? getMangaPlazaTotalPages() : getImages().length;
