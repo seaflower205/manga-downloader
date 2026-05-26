@@ -1,0 +1,3 @@
+## 2023-10-27 - Throttle MutationObserver for High-Frequency DOM Updates
+**Learning:** Pure `setTimeout` debouncing on `document.documentElement` MutationObservers can lead to starvation. On heavily animated or dynamic sites, continuous mutations constantly clear the timeout, preventing the callback from ever executing.
+**Action:** Use `requestAnimationFrame` and a boolean flag (`isPending`) to throttle the observer. This batches DOM reads efficiently, ensures the callback executes once per frame cycle regardless of update frequency, and prevents main thread blocking.

@@ -231,7 +231,21 @@
   }
 
   // Watch for the bridge element to appear or change (MutationObserver)
-  const observer = new MutationObserver(() => readBridge());
+  // Optimization: Throttled MutationObserver callback using requestAnimationFrame
+  // Why: The observer watches document.documentElement for subtree/characterData changes,
+  // which fire continuously on dynamic sites. Synchronous execution blocks the main thread.
+  // Throttling prevents starvation (which pure debouncing could cause on continuous animations)
+  // and batches DOM reads efficiently to improve rendering performance.
+  let observerPending = false;
+  const observer = new MutationObserver(() => {
+    if (!observerPending) {
+      observerPending = true;
+      requestAnimationFrame(() => {
+        observerPending = false;
+        readBridge();
+      });
+    }
+  });
   observer.observe(document.documentElement, { childList: true, subtree: true, characterData: true });
 
   // Also poll periodically for reliability (some sites have dynamic loading)
