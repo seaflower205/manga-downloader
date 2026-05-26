@@ -57,6 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.type = 'button';
     btn.className = className;
     btn.title = title;
+    btn.setAttribute('aria-label', title);
     btn.innerHTML = icon;
     return btn;
   }
@@ -107,10 +108,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   tabs.forEach(tab => {
     tab.addEventListener('click', () => {
-      tabs.forEach(t => t.classList.remove('active'));
+      tabs.forEach(t => {
+        t.classList.remove('active');
+        t.setAttribute('aria-selected', 'false');
+      });
       tabContents.forEach(c => c.classList.remove('active'));
 
       tab.classList.add('active');
+      tab.setAttribute('aria-selected', 'true');
       const activeTabId = tab.getAttribute('data-tab');
       const activeTab = document.getElementById(activeTabId);
       if (activeTab) activeTab.classList.add('active');
