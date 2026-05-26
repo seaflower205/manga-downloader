@@ -1,0 +1,4 @@
+
+## 2024-05-18 - Manual WAI-ARIA Management for Vanilla JS Tabs
+**Learning:** The extension uses a custom tab component built with vanilla HTML and JavaScript. Without a UI framework to handle accessibility under the hood, crucial WAI-ARIA attributes (`role="tablist"`, `role="tab"`, `aria-selected`, `aria-controls`, `role="tabpanel"`, `aria-labelledby`, `tabindex="0"`) were missing, and the `aria-selected` state was not toggling dynamically upon clicks, making keyboard and screen reader navigation severely degraded.
+**Action:** Always verify if custom vanilla JS UI components (like tabs, modals, accordions) have manual DOM state-syncing logic for accessibility attributes. Implement logic to toggle states like `aria-selected` or `aria-expanded` via JavaScript alongside visual class changes.
