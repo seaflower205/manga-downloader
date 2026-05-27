@@ -219,7 +219,18 @@
       const bridge = document.getElementById(BRIDGE_ID);
       if (bridge) {
         Detector.readBridge();
-        const observer = new MutationObserver(() => Detector.readBridge());
+        let isReadingBridge = false;
+        const observer = new MutationObserver(() => {
+          // ⚡ Bolt: Throttled observer to prevent main thread blocking during continuous DOM updates.
+          // Batching bridge reads via requestAnimationFrame ensures parsing runs max once per frame (16ms).
+          if (!isReadingBridge) {
+            isReadingBridge = true;
+            window.requestAnimationFrame(() => {
+              Detector.readBridge();
+              isReadingBridge = false;
+            });
+          }
+        });
         observer.observe(bridge, { childList: true, characterData: true, subtree: true });
       }
 
