@@ -490,7 +490,7 @@ PHÂN TÍCH NATIVE API/AJAX ENDPOINTS & BIẾN TOÀN CỤC:
   * "imagesResponseFormat": "json"
   * "imagesResultPath": Đường dẫn trỏ tới mảng link ảnh trong JSON/biến.
   * "imagesJsonVariable": Tên biến toàn cục lưu trữ danh sách link ảnh hoặc đường dẫn biến dạng "__NEXT_DATA__.props.pageProps.images" mà tiện ích có thể truy cập.
-- Đối với các trang web đọc truyện theo kiểu click chuyển trang (page-by-page, ví dụ: Mangadex ở chế độ đọc từng trang một), hãy tìm nút "Trang sau" (Next Page) hoặc phím tắt và điền vào trường:
+- Đối với các trang web đọc truyện theo kiểu click chuyển trang (page-by-page, ví dụ: website_vi_du.com ở chế độ đọc từng trang một), hãy tìm nút "Trang sau" (Next Page) hoặc phím tắt và điền vào trường:
   * "nextPageSelector": Selector của nút chuyển trang tiếp theo, hoặc điền "key:ArrowRight" nếu trang hỗ trợ bấm phím mũi tên phải để chuyển trang.
 
 Yêu cầu định dạng kết quả trả về:

@@ -681,62 +681,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (listTab) listTab.click();
   });
 
-  // Auto-detect config from active page
-  const btnAutoDetect = document.getElementById('btn-auto-detect-page');
-  const progressContainer = document.getElementById('auto-detect-progress-container');
-  const progressStatus = document.getElementById('auto-detect-progress-status');
-  const progressBar = document.getElementById('auto-detect-progress-bar');
-  const progressPercent = document.getElementById('auto-detect-progress-percent');
 
-  if (btnAutoDetect) {
-    btnAutoDetect.addEventListener('click', async () => {
-      try {
-        const tab = await getActiveTab();
-        if (!tab || !tab.id || !tab.url || tab.url.startsWith('chrome:')) {
-          alert('Không thể dò cấu hình trên tab đặc biệt này.');
-          return;
-        }
-
-        btnAutoDetect.disabled = true;
-        if (progressContainer) progressContainer.style.display = 'block';
-        updateAutoDetectProgress(10, 'Đang bắt đầu quét cấu trúc trang...');
-
-        chrome.tabs.sendMessage(tab.id, { type: 'AUTO_DETECT' }, response => {
-          btnAutoDetect.disabled = false;
-          if (chrome.runtime.lastError || !response || !response.success) {
-            const err = chrome.runtime.lastError ? chrome.runtime.lastError.message : (response && response.error) || 'Không có phản hồi từ content script.';
-            updateAutoDetectProgress(0, `Lỗi: ${err}`);
-            setTimeout(() => {
-              if (progressContainer) progressContainer.style.display = 'none';
-            }, 5000);
-            return;
-          }
-
-          updateAutoDetectProgress(100, 'Hoàn thành!');
-          setTimeout(() => {
-            if (progressContainer) progressContainer.style.display = 'none';
-          }, 1500);
-
-          // Populate fields
-          const detected = response.site || {};
-          const cleanSite = {
-            name: detected.name || '',
-            domainPattern: detected.domainPattern || '',
-            imageSelector: detected.imageSelector || '',
-            imageUrlAttribute: detected.imageUrlAttribute || 'src',
-            titleSelector: detected.titleSelector || '',
-            chapterSelector: detected.chapterSelector || '',
-            referer: detected.referer || ''
-          };
-          jsonConfigInput.value = JSON.stringify(cleanSite, null, 2);
-          showNotification('Đã tự động điền các trường cấu hình tìm thấy!', 'success');
-        });
-      } catch (e) {
-        btnAutoDetect.disabled = false;
-        alert(`Lỗi quét cấu hình: ${e.message}`);
-      }
-    });
-  }
 
   // Paste AI config from clipboard and save directly
   const btnPasteAiConfig = document.getElementById('btn-paste-ai-config');
@@ -838,11 +783,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  function updateAutoDetectProgress(percent, status) {
-    if (progressStatus) progressStatus.textContent = status;
-    if (progressBar) progressBar.style.width = `${percent}%`;
-    if (progressPercent) progressPercent.textContent = `${percent}%`;
-  }
+
 
   // Smart Diagnostics Event Listener
   const smartDiagnosticsBtn = document.getElementById('btn-smart-diagnostics');
@@ -947,7 +888,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           appendStep(`Tìm thấy cấu hình khớp với website: <strong>${matchedProfile.name}</strong> (\`${matchedKey}\`)`, 'success');
         } else {
           appendStep('Không tìm thấy cấu hình khớp với website này trong bộ nhớ tiện ích.', 'warning');
-          appendStep('Gợi ý: Hãy cấu hình bằng tab "Trình tự động dò" (Auto-detect) hoặc lấy cấu hình từ AI dán vào ô văn bản bên dưới để Import.', 'info');
+          appendStep('Gợi ý: Hãy lấy cấu hình tạo bởi AI dán vào tab "Cấu hình" để lưu trữ.', 'info');
         }
 
         appendStep('Đang kết nối tới Content Script trên trang...', 'info');
@@ -1395,22 +1336,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (addTab) addTab.click();
           });
 
-          const autoDetectBtn = document.createElement('button');
-          autoDetectBtn.type = 'button';
-          autoDetectBtn.className = 'status-alert-btn auto-detect-btn';
-          autoDetectBtn.style.background = 'rgba(16, 185, 129, 0.15)';
-          autoDetectBtn.style.borderColor = 'rgba(16, 185, 129, 0.35)';
-          autoDetectBtn.style.color = '#10B981';
-          appendText(autoDetectBtn, 'Dò tự động', '');
-          autoDetectBtn.addEventListener('click', () => {
-            const configTab = document.querySelector('[data-tab="add-site"]');
-            if (configTab) configTab.click();
-            setTimeout(() => {
-              if (btnAutoDetect) btnAutoDetect.click();
-            }, 100);
-          });
-
-          actionsRow.append(quickAdd, autoDetectBtn);
+          actionsRow.append(quickAdd);
           content.append(line, actionsRow);
         });
         notificationArea.appendChild(alertBox);
@@ -1460,12 +1386,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Chrome runtime listener to update active tab auto-detect progress UI
-  chrome.runtime.onMessage.addListener((message) => {
-    if (message && message.type === 'AUTO_DETECT_PROGRESS') {
-      updateAutoDetectProgress(message.progress, message.status);
-    }
-  });
+
 
   // Run initialization routines
   await loadSites();

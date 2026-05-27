@@ -60,75 +60,7 @@
       return false;
     }
 
-    if (message && message.type === 'AUTO_DETECT_CONFIG') {
-      (async () => {
-        try {
-          const reportProgress = async (progress, status) => {
-            chrome.runtime.sendMessage({ type: 'AUTO_DETECT_PROGRESS', progress, status }).catch(() => {});
-            await new Promise(resolve => setTimeout(resolve, 200));
-          };
 
-          await reportProgress(15, 'Đang quét bảo mật trang web (Bot Protection)...');
-          const botWall = Detector.detectBotWall();
-          if (botWall.detected) {
-            sendResponse({
-              success: false,
-              botDetected: true,
-              error: `Phát hiện bảo vệ chống bot: ${botWall.type}. Vui lòng tự giải captcha hoặc đợi trang tải đầy đủ rồi thử lại.`
-            });
-            return;
-          }
-
-          await reportProgress(50, 'Đang quét cấu trúc hình ảnh DOM & thuộc tính lazy-load...');
-          
-          // Probe website images heuristics
-          const imgResult = Detector.probeMangaImages();
-          if (!imgResult) {
-            sendResponse({
-              success: false,
-              error: 'Không tìm thấy cấu trúc ảnh truyện tranh trên trang này. Vui lòng mở hẳn trang đọc truyện rồi thử lại.'
-            });
-            return;
-          }
-
-          await reportProgress(80, 'Phân tích cấu trúc ảnh thành công. Đang quét metadata truyện...');
-          const metaResult = Detector.probeMangaMetadata();
-          await reportProgress(100, 'Tự động dò cấu hình hoàn tất!');
-          
-          const currentHost = window.location.hostname.toLowerCase();
-          
-          sendResponse({
-            success: true,
-            experienceMatched: false,
-            site: {
-              name: document.title.split(/[-|]/)[0].trim(),
-              domainPattern: currentHost.replace('www.', '').replace(/\./g, '\\.'),
-              imageSelector: imgResult.selector,
-              imageUrlAttribute: imgResult.attribute,
-              titleSelector: metaResult.titleSelector,
-              chapterSelector: metaResult.chapterSelector,
-              referer: window.location.origin + '/',
-              isNsfw: Detector.detectIsNsfw(),
-              searchSupported: false,
-              searchUrl: '',
-              searchResultSelector: '',
-              searchTitleSelector: '',
-              searchCoverSelector: '',
-              searchAuthorSelector: ''
-            },
-            stats: {
-              imagesFound: imgResult.imageCount,
-              titleText: metaResult.titleText,
-              chapterText: metaResult.chapterText
-            }
-          });
-
-        } catch (error) {
-          sendResponse({ success: false, error: Security.sanitizeError(error).message });
-        }
-      })();
-      return true; // Keep channel open
-    }
 
     if (message && message.type === 'RUN_SMART_DIAGNOSTICS') {
       (async () => {
