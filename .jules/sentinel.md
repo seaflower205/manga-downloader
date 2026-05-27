@@ -1,0 +1,4 @@
+## 2026-05-27 - [XSS Fix] Insecure DOM-based HTML Escaping
+**Vulnerability:** The `escapeHtml` function across `content/content.js` and `content/ui.js` used a DOM-based technique (`document.createElement('div'); div.appendChild(document.createTextNode(str)); return div.innerHTML;`). This fails to escape double (`"`) and single (`'`) quotes, allowing attribute injection XSS.
+**Learning:** Developers sometimes mistakenly rely on text nodes to escape HTML completely, but text nodes only escape `<` and `>`. If the resulting string is used inside an HTML attribute, an attacker can break out using quotes.
+**Prevention:** Always use regex-based substitution that covers all five critical characters (`&`, `<`, `>`, `"`, `'`) when creating an `escapeHtml` function, or rely on robust modern rendering functions/frameworks.
