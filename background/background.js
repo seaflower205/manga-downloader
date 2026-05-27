@@ -201,24 +201,6 @@ async function registerRefererBypassRules() {
       });
     });
 
-    // Add specific fallback rule for poke-black-and-white.net (Mangaball CDN)
-    ruleId++;
-    rules.push({
-      id: ruleId,
-      priority: 1,
-      action: {
-        type: 'modifyHeaders',
-        requestHeaders: [
-          { header: 'Referer', operation: 'set', value: 'https://mangaball.net/' },
-          { header: 'Origin', operation: 'set', value: 'https://mangaball.net' }
-        ]
-      },
-      condition: {
-        urlFilter: 'poke-black-and-white.net',
-        resourceTypes: ['image']
-      }
-    });
-
 
 
     // Get all existing dynamic rules

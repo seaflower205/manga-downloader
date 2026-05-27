@@ -448,6 +448,45 @@
         }
       });
     } catch (e) {}
+
+    // 5. Next / Prev chapter link candidates
+    try {
+      clone.querySelectorAll('a').forEach(a => {
+        const text = a.textContent.trim().toLowerCase();
+        const href = a.getAttribute('href') || '';
+        const id = (a.id || '').toLowerCase();
+        const className = (a.className || '').toLowerCase();
+        const rel = (a.getAttribute('rel') || '').toLowerCase();
+        
+        if (href && !href.startsWith('javascript') && !href.startsWith('#')) {
+          if (/next|tiếp|sau|chap-next|next-chap|next_chap/i.test(text + id + className + rel)) {
+            a.setAttribute('data-ai-role', 'manga-next-chapter-candidate');
+          } else if (/prev|trước|truoc|chap-prev|prev-chap|prev_chap/i.test(text + id + className + rel)) {
+            a.setAttribute('data-ai-role', 'manga-prev-chapter-candidate');
+          }
+        }
+      });
+    } catch (e) {}
+
+    // 6. Chapter list / selector candidates
+    try {
+      clone.querySelectorAll('select').forEach(select => {
+        const id = (select.id || '').toLowerCase();
+        const className = (select.className || '').toLowerCase();
+        const name = (select.getAttribute('name') || '').toLowerCase();
+        if (/chapter|chap|chuong|episode|list|select/i.test(id + className + name)) {
+          select.setAttribute('data-ai-role', 'manga-chapters-dropdown-candidate');
+        }
+      });
+      
+      clone.querySelectorAll('ul, ol, div').forEach(el => {
+        const id = (el.id || '').toLowerCase();
+        const className = (el.className || '').toLowerCase();
+        if (/chapter-list|list-chapter|chapters|ds-chuong|danh-sach-chuong/i.test(id + className)) {
+          el.setAttribute('data-ai-role', 'manga-chapters-list-candidate');
+        }
+      });
+    } catch (e) {}
   }
 
   function collapseRepetitiveSiblings(parent) {
@@ -573,6 +612,28 @@
 
     // Annotate candidates in the cloned tree
     annotateCandidates(clone, root);
+
+    // Prune noise elements (headers, footers, sidebars, comments) if they don't contain any annotated AI candidates
+    try {
+      const noiseSelectors = [
+        'header', 'footer', 'nav', 'aside', 'sidebar',
+        '.header', '.footer', '.nav', '.sidebar', '.aside',
+        '#header', '#footer', '#nav', '#sidebar', '#aside',
+        '.comments', '#comments', '.comment-area', '#disqus_thread',
+        '.social-share', '.share-buttons', '.social-widget',
+        '.popup-modal', '.modal', '.banner-ads', '.ad-container',
+        '.cookie-consent', '.cookies-notice', '.footer-links',
+        '.chat-widget', '#chat-widget', '.newsletter', '.subscribe-box'
+      ];
+      
+      clone.querySelectorAll(noiseSelectors.join(',')).forEach(el => {
+        if (!el.querySelector('[data-ai-role]') && !el.getAttribute('data-ai-role')) {
+          el.remove();
+        }
+      });
+    } catch (e) {
+      console.warn('Failed to prune noise elements:', e);
+    }
 
     // Collapse repetitive sibling groups to keep HTML compact
     collapseRepetitiveSiblings(clone);

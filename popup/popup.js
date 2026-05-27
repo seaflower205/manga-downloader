@@ -302,7 +302,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const logoImg = document.createElement('img');
     logoImg.className = 'site-card-logo';
-    let domain = 'mangadex.org';
+    let domain = 'example.com';
     try {
       const openUrl = getSiteOpenUrl(site);
       if (openUrl) domain = new URL(openUrl).hostname;
@@ -988,7 +988,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const items = doc.querySelectorAll(resultSelector);
                 if (items.length === 0) {
                   appendStep(`Tìm kiếm: Không tìm thấy phần tử nào khớp với searchResultSelector (\`${resultSelector}\`). Có thể cấu hình bộ chọn bị sai, trang kết quả rỗng, hoặc trang tìm kiếm sử dụng JavaScript (Single Page App) để render động.`, 'danger');
-                  appendStep('Gợi ý: Nếu trang web là Single Page App tải dữ liệu bằng API (như MangaBall), bạn cần viết case API/POST cụ thể trong background service worker thay vì dùng bộ chọn HTML thông thường.', 'info');
+                  appendStep('Gợi ý: Nếu trang web là Single Page App tải dữ liệu bằng API (như một số trang tải động), bạn cần viết case API/POST cụ thể trong background service worker thay vì dùng bộ chọn HTML thông thường.', 'info');
                   return;
                 }
                 

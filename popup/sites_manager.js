@@ -455,17 +455,24 @@ MẸO PHÂN TÍCH QUAN TRỌNG (SỬ DỤNG DATA-AI-ROLE):
 - Hãy sử dụng class hoặc ID hoặc cấu trúc cha-con từ các thẻ có gắn thuộc tính này để viết CSS Selector ngắn gọn và chính xác. Tránh dùng các class động/ngẫu nhiên.
 
 QUY TẮC PHÂN TÍCH VÀ ĐIỀN THÔNG TIN CHI TIẾT:
-1. **domainPattern**: Viết chuỗi Regex ngắn gọn để khớp với tên miền của trang web đó (ví dụ: \\\`nettruyen(?:new|co|top|me|tv)?\\\\.com|nhattruyen\\\`). Hãy đảm bảo chuỗi Regex của bạn an toàn, không có lỗi cú pháp JSON.
+1. **domainPattern**: Viết chuỗi Regex ngắn gọn để khớp với tên miền của trang web đó (ví dụ: \\\`example(?:cdn)?\\\\.com\\\`). Hãy đảm bảo chuỗi Regex của bạn an toàn, không có lỗi cú pháp JSON.
 2. **chapterUrlPattern**: Chuỗi regex dùng để nhận diện trang đọc truyện (ví dụ: \\\`chap|chuong|chapter\\\`).
-3. **imageSelector**: Bộ chọn chọn tất cả các ảnh của chương truyện (ví dụ: \\\`.page-chapter img\\\`). Hãy viết bộ chọn sao cho không bị lẫn các banner quảng cáo hay ảnh avatar người dùng ở dưới. Nếu tên class có chứa hash ngẫu nhiên (CSS Modules), hãy dùng bộ chọn thuộc tính như \\\`[class*="wt_viewer"] img\\\`.
+3. **imageSelector**: Bộ chọn chọn tất cả các ảnh của chương truyện (ví dụ: \\\`.page-chapter img\\\`). Hãy viết bộ chọn sao cho không bị lẫn các banner quảng cáo hay ảnh avatar người dùng ở dưới. Nếu tên class có chứa hash ngẫu nhiên (CSS Modules / styled-components), hãy dùng bộ chọn thuộc tính như \\\`[class*="wt_viewer"] img\\\` hoặc cấu trúc cha-con thay vì class name đầy đủ.
 4. **imageUrlAttribute**: Thuộc tính của thẻ ảnh chứa link ảnh thực tế. Vì nhiều trang sử dụng lazyload, thuộc tính này có thể là \\\`data-original\\\`, \\\`data-src\\\`, \\\`data-lazy-src\\\`. Hãy viết dưới dạng chuỗi các thuộc tính phân tách bằng dấu gạch đứng theo thứ tự ưu tiên (ví dụ: \\\`data-original|data-src|src\\\`).
-5. **titleSelector**: Bộ chọn lấy tên truyện gốc (ví dụ: \\\`h1.txt-primary\\\` hoặc \\\`.breadcrumb li:nth-last-child(2) a\\\`).
-6. **chapterSelector**: Bộ chọn lấy tên/số chương hiện tại (ví dụ: \\\`.breadcrumb li:last-child a\\\` hoặc \\\`h1.txt-primary\\\`).
+5. **titleSelector**: Bộ chọn lấy tên truyện gốc (ví dụ: \\\`h1.manga-title\\\` hoặc \\\`.breadcrumb li:nth-last-child(2) a\\\`).
+6. **chapterSelector**: Bộ chọn lấy tên/số chương hiện tại (ví dụ: \\\`.breadcrumb li:last-child a\\\` hoặc \\\`h2.chapter-title\\\`).
 7. **referer**: Link referer cần thiết để bypass hotlink protection (thường là \\\`https://[domain-goc]/\\\`).
 8. **searchSupported**: Giá trị boolean biểu thị trang web có hỗ trợ tìm kiếm hay không.
-9. **searchUrl**: URL tìm kiếm mẫu, trong đó từ khóa tìm kiếm được thay thế bằng chuỗi \\\`{query}\\\` (ví dụ: \\\`https://www.nettruyennew.com/tim-truyen?keyword={query}\\\` hoặc \\\`https://mangadex.org/search?q={query}\\\`).
+9. **searchUrl**: URL tìm kiếm mẫu, trong đó từ khóa tìm kiếm được thay thế bằng chuỗi \\\`{query}\\\` (ví dụ: \\\`https://example.com/search?q={query}\\\` hoặc \\\`https://example-manga.org/search?q={query}\\\`).
 10. **searchResultSelector**: Bộ chọn chọn từng khung chứa một truyện trong trang kết quả tìm kiếm.
 11. **searchTitleSelector** / **searchCoverSelector** / **searchAuthorSelector**: Bộ chọn tương đối (relative selector) trỏ từ thẻ truyện của kết quả (\\\`searchResultSelector\\\`) tới tên truyện, ảnh bìa và tác giả tương ứng.
+
+CÁC VAI TRÒ AI BỔ SUNG (NẾU CÓ):
+- Một số thẻ phụ đã được gán nhãn để hỗ trợ bạn định vị cấu trúc trang:
+  * Nút chương sau: \\\`data-ai-role="manga-next-chapter-candidate"\\\` (hữu ích để phân tích cấu trúc chuyển chương).
+  * Nút chương trước: \\\`data-ai-role="manga-prev-chapter-candidate"\\\`.
+  * Menu dropdown chọn chương: \\\`data-ai-role="manga-chapters-dropdown-candidate"\\\`.
+  * Khung danh sách tất cả chương: \\\`data-ai-role="manga-chapters-list-candidate"\\\`.
 
 PHÂN TÍCH NATIVE API/AJAX ENDPOINTS:
 - Hãy nghiên cứu xem trang web có gọi API ngầm (XHR/Fetch) để tải ảnh hoặc tìm kiếm hay không. Nếu có, hãy mô tả chi tiết URL Endpoint, HTTP Method, cấu trúc Request/Response và cách parse dữ liệu ngay dưới khối JSON.

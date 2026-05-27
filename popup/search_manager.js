@@ -320,57 +320,6 @@
         }
       });
 
-      // Query custom searchable websites in parallel using offscreen parser fallback
-      Object.entries(this.popup.allSites).forEach(([key, site]) => {
-        const isDefault = ['mangadex', 'mangakatana', 'urimana', 'theblank', 'twmanga', 'mangaball', 'nettruyen', 'mangaplaza', 'baozimh', 'ebookrenta'].includes(key);
-        if (isDefault) return; // Background worker handles defaults
-        if (site.isNsfw) return;
-        if (this.popup.disabledSearchSites.includes(key)) return;
-
-        if (site.searchUrl && site.searchResultSelector) {
-          this.activeCustomSearchesCount++;
-
-          (async () => {
-            try {
-              const fetchUrl = site.searchUrl.replace('{query}', encodeURIComponent(query));
-              chrome.runtime.sendMessage({
-                type: 'FETCH_HTML',
-                data: { url: fetchUrl, referer: site.referer || fetchUrl }
-              }, fetchRes => {
-                if (this.currentSearchId !== searchId) return;
-
-                this.activeCustomSearchesCount = Math.max(0, this.activeCustomSearchesCount - 1);
-
-                if (fetchRes && !fetchRes.success) {
-                  const errorStr = String(fetchRes.error || '').toLowerCase();
-                  const isCf = errorStr.includes('cloudflare') || errorStr.includes('challenge') || errorStr.includes('captcha') || errorStr.includes('bot protection') || errorStr.includes('access denied');
-                  if (isCf) {
-                    this.handleSearchCloudflareBlocked({
-                      siteKey: key,
-                      sourceName: site.name,
-                      url: fetchUrl
-                    }, this.mangaSearchResults);
-                  }
-                  this.checkSearchCompletion();
-                  return;
-                }
-
-                if (fetchRes && fetchRes.html) {
-                  const parsed = this.parseCustomSearchHtml(fetchRes.html, site, key, fetchUrl);
-                  if (parsed && parsed.length > 0) {
-                    this.currentSearchHasResults = true;
-                    parsed.forEach(item => this.renderSearchResult(item, this.mangaSearchResults, false));
-                  }
-                }
-                this.checkSearchCompletion();
-              });
-            } catch (e) {
-              this.activeCustomSearchesCount = Math.max(0, this.activeCustomSearchesCount - 1);
-              this.checkSearchCompletion();
-            }
-          })();
-        }
-      });
 
       this.checkSearchCompletion();
     }
@@ -413,114 +362,7 @@
           }
         }
       });
-
-      Object.entries(this.popup.allSites).forEach(([key, site]) => {
-        const isDefault = ['mangadex', 'mangakatana', 'urimana', 'theblank', 'twmanga', 'mangaball', 'nettruyen', 'mangaplaza', 'baozimh', 'ebookrenta'].includes(key);
-        if (isDefault) return;
-        if (!site.isNsfw) return;
-        if (this.popup.disabledSearchSites.includes(key)) return;
-
-        if (site.searchUrl && site.searchResultSelector) {
-          this.activeNsfwCustomSearchesCount++;
-
-          (async () => {
-            try {
-              const fetchUrl = site.searchUrl.replace('{query}', encodeURIComponent(query));
-              chrome.runtime.sendMessage({
-                type: 'FETCH_HTML',
-                data: { url: fetchUrl, referer: site.referer || fetchUrl }
-              }, fetchRes => {
-                if (this.currentNsfwSearchId !== searchId) return;
-
-                this.activeNsfwCustomSearchesCount = Math.max(0, this.activeNsfwCustomSearchesCount - 1);
-
-                if (fetchRes && !fetchRes.success) {
-                  const errorStr = String(fetchRes.error || '').toLowerCase();
-                  const isCf = errorStr.includes('cloudflare') || errorStr.includes('challenge') || errorStr.includes('captcha') || errorStr.includes('bot protection') || errorStr.includes('access denied');
-                  if (isCf) {
-                    this.handleSearchCloudflareBlocked({
-                      siteKey: key,
-                      sourceName: site.name,
-                      url: fetchUrl
-                    }, this.nsfwSearchResults);
-                  }
-                  this.checkNsfwSearchCompletion();
-                  return;
-                }
-
-                if (fetchRes && fetchRes.html) {
-                  const parsed = this.parseCustomSearchHtml(fetchRes.html, site, key, fetchUrl);
-                  if (parsed && parsed.length > 0) {
-                    this.currentNsfwSearchHasResults = true;
-                    parsed.forEach(item => this.renderSearchResult(item, this.nsfwSearchResults, true));
-                  }
-                }
-                this.checkNsfwSearchCompletion();
-              });
-            } catch (e) {
-              this.activeNsfwCustomSearchesCount = Math.max(0, this.activeNsfwCustomSearchesCount - 1);
-              this.checkNsfwSearchCompletion();
-            }
-          })();
-        }
-      });
-
       this.checkNsfwSearchCompletion();
-    }
-
-    parseCustomSearchHtml(html, site, siteKey, searchUrl) {
-      const results = [];
-      try {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        const items = doc.querySelectorAll(site.searchResultSelector);
-
-        items.forEach(el => {
-          try {
-            const titleEl = site.searchTitleSelector ? el.querySelector(site.searchTitleSelector) : el.querySelector('a');
-            if (!titleEl) return;
-            const titleText = Security.toSafeString(titleEl.textContent, 180);
-            
-            let urlVal = titleEl.getAttribute('href') || '';
-            if (urlVal && !urlVal.startsWith('http')) {
-              const baseOrigin = new URL(searchUrl).origin;
-              urlVal = baseOrigin + (urlVal.startsWith('/') ? '' : '/') + urlVal;
-            }
-            const cleanUrl = Security.normalizeUrl(urlVal, { allowHttp: true });
-            if (!cleanUrl) return;
-
-            const coverEl = site.searchCoverSelector ? el.querySelector(site.searchCoverSelector) : el.querySelector('img');
-            let coverUrl = '';
-            if (coverEl) {
-              coverUrl = coverEl.getAttribute('src') || coverEl.getAttribute('data-src') || coverEl.getAttribute('data-original') || '';
-              if (coverUrl && !coverUrl.startsWith('http')) {
-                const baseOrigin = new URL(searchUrl).origin;
-                coverUrl = baseOrigin + (coverUrl.startsWith('/') ? '' : '/') + coverUrl;
-              }
-            }
-
-            let authorText = 'Nhiều tác giả';
-            if (site.searchAuthorSelector) {
-              const authorEl = el.querySelector(site.searchAuthorSelector);
-              if (authorEl) authorText = Security.toSafeString(authorEl.textContent, 160);
-            }
-
-            results.push({
-              title: titleText,
-              url: cleanUrl,
-              thumbnail: Security.normalizeUrl(coverUrl, { allowHttp: true }),
-              author: authorText,
-              source: site.name,
-              sourceKey: siteKey
-            });
-          } catch (e) {
-            console.warn('Failed to parse search card:', e);
-          }
-        });
-      } catch (err) {
-        console.error('Custom search HTML parse failed:', err);
-      }
-      return results;
     }
 
     renderSearchResult(rawItem, container, isNsfw) {
@@ -568,7 +410,7 @@
 
       const sourceLogo = document.createElement('img');
       sourceLogo.className = 'search-result-source-logo';
-      let sourceDomain = 'mangadex.org';
+      let sourceDomain = 'example.com';
       try {
         if (item.url) sourceDomain = new URL(item.url).hostname;
       } catch (_) {}

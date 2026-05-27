@@ -239,12 +239,12 @@
             <label for="json-config-input" style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); display: block; margin-bottom: 6px;">Nội dung cấu hình JSON</label>
             <textarea id="json-config-input" placeholder='Dán hoặc nhập cấu hình JSON ở đây. Ví dụ:
 {
-  "name": "NetTruyen",
-  "domainPattern": "nettruyen(?:new|co|top|me|tv)?\\.com|nhattruyen",
-  "imageSelector": ".page-chapter img",
-  "imageUrlAttribute": "data-original|src",
-  "titleSelector": ".txt-primary a",
-  "chapterSelector": "h1.txt-primary"
+  "name": "ExampleManga",
+  "domainPattern": "example(?:cdn)?\\.com",
+  "imageSelector": ".reading-content img",
+  "imageUrlAttribute": "data-src|src",
+  "titleSelector": "h1.manga-title",
+  "chapterSelector": "h2.chapter-title"
 }' style="width: 100%; height: 210px; font-family: monospace; font-size: 11px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); padding: 8px; resize: vertical; box-sizing: border-box; outline: none;"></textarea>
           </div>
 
@@ -264,11 +264,11 @@
           <div class="grid-2-cols" style="gap: 8px; margin-bottom: 8px;">
             <div class="form-group" style="margin: 0;">
               <label for="ai-site-name" style="font-size: 10px; margin-bottom: 4px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase;">Tên web muốn cào</label>
-              <input type="text" id="ai-site-name" placeholder="Ví dụ: NetTruyen" style="padding: 8px; font-size: 11px; width: 100%;">
+              <input type="text" id="ai-site-name" placeholder="Ví dụ: ExampleManga" style="padding: 8px; font-size: 11px; width: 100%;">
             </div>
             <div class="form-group" style="margin: 0;">
               <label for="ai-sample-url" style="font-size: 10px; margin-bottom: 4px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase;">URL chương truyện mẫu</label>
-              <input type="text" id="ai-sample-url" placeholder="Ví dụ: https://www.nettruyennew.com/truyen-tranh/.../chap-1/..." style="padding: 8px; font-size: 11px; width: 100%;">
+              <input type="text" id="ai-sample-url" placeholder="Ví dụ: https://example.com/manga/chap-1/..." style="padding: 8px; font-size: 11px; width: 100%;">
             </div>
           </div>
           <div class="form-group" style="margin-bottom: 0;">
