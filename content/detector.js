@@ -498,8 +498,28 @@
 
   function sanitizeDomClone(root) {
     const clone = root.cloneNode(true);
-    // Keep form, input, textarea, select, and button elements, but remove script/style tags and password fields, SVGs, paths, etc.
-    clone.querySelectorAll('script, style, iframe, object, embed, noscript, link, meta, input[type="password"], svg, path, symbol, g, use, rect, circle, polyline, polygon, line, mask, clippath, defs, linearGradient, radialGradient, stop').forEach(el => el.remove());
+
+    // Strip comments from the clone
+    try {
+      const iterator = document.createNodeIterator(clone, NodeFilter.SHOW_COMMENT);
+      let commentNode;
+      const commentsToRemove = [];
+      while ((commentNode = iterator.nextNode())) {
+        commentsToRemove.push(commentNode);
+      }
+      commentsToRemove.forEach(node => node.remove());
+    } catch (e) {
+      console.warn('Failed to strip comments:', e);
+    }
+
+    // Keep form, input, textarea, select, and button elements, but remove script/style tags and password fields, SVGs, paths, etc., as well as common ad and tracking elements
+    clone.querySelectorAll('script, style, iframe, object, embed, noscript, link, meta, input[type="password"], svg, path, symbol, g, use, rect, circle, polyline, polygon, line, mask, clippath, defs, linearGradient, radialGradient, stop, .adsbygoogle, [class*="advertising"], [class*="-ad-"], [class*=" ads "], [id*="google_ads"], [class*="social-share"], [class*="fb-comments"], [class*="disqus"], #disqus_thread, #comments, .comments, .comment-respond, #respond').forEach(el => el.remove());
+
+    const attributeWhitelist = [
+      'id', 'class', 'src', 'href', 'title', 'alt', 'placeholder', 'type', 
+      'name', 'action', 'method', 'data-src', 'data-original', 'data-lazy-src', 
+      'data-ai-role', 'data-ai-attr-candidate'
+    ];
 
     clone.querySelectorAll('*').forEach(el => {
       // Clear input/textarea values to protect user privacy while preserving selectors/attributes
@@ -515,17 +535,14 @@
         el.removeAttribute('value');
       }
 
+      // Filter and sanitize attributes based on whitelist
       Array.from(el.attributes).forEach(attr => {
         const name = attr.name.toLowerCase();
-        if (name.startsWith('on') || name === 'style') {
+        if (!attributeWhitelist.includes(name)) {
           el.removeAttribute(attr.name);
           return;
         }
-        if (['src', 'href', 'data-src', 'data-original', 'data-lazy-src', 'srcset'].includes(name)) {
-          if (name === 'srcset') {
-            el.removeAttribute(attr.name);
-            return;
-          }
+        if (['src', 'href', 'data-src', 'data-original', 'data-lazy-src'].includes(name)) {
           const sanitized = Security.sanitizeUrlForReport(attr.value);
           if (sanitized) {
             el.setAttribute(attr.name, sanitized);
@@ -538,6 +555,13 @@
           el.setAttribute(attr.name, Security.redactSecrets(attr.value).slice(0, 240));
         }
       });
+    });
+
+    // Clean up empty tags that don't have text or useful attributes
+    clone.querySelectorAll('span, div, p, i, b, strong, em').forEach(el => {
+      if (el.childNodes.length === 0 && (!el.id) && (!el.className)) {
+        el.remove();
+      }
     });
 
     const walker = document.createTreeWalker(clone, NodeFilter.SHOW_TEXT);

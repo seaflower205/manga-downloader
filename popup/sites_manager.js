@@ -420,18 +420,18 @@
 - Tên website: ${siteName}
 - URL chương mẫu: ${sampleUrl}
 
-Dưới đây là cấu trúc HTML DOM đã lược bỏ (sanitized) và thu gọn của trang truyện này để bạn phân tích chính xác các CSS selector:
-\`\`\`html
+Dưới đây là cấu trúc HTML DOM đã lược bỏ (sanitized), lọc sạch thuộc tính rác và thu gọn của trang truyện này để bạn phân tích chính xác các CSS selector:
+\\\`\\\`\\\`html
 ${domSnapshotHtml}
-\`\`\`
+\\\`\\\`\\\`
 `;
 
       if (this.homepageSearchDom) {
         fullPromptText += `
 Dưới đây là cấu trúc HTML của phần Tìm kiếm (Search Form / Input) được trích xuất từ trang chủ của website này để bạn phân tích chính xác cấu trúc tìm kiếm:
-\`\`\`html
+\\\`\\\`\\\`html
 ${this.homepageSearchDom}
-\`\`\`
+\\\`\\\`\\\`
 `;
       }
 
@@ -439,62 +439,60 @@ ${this.homepageSearchDom}
 Hãy đóng vai trò là một chuyên gia lập trình cào dữ liệu DOM và phân tích API Web. Phân tích cấu trúc HTML ở trên và tạo ra cấu hình JSON hoạt động tốt cho cả tính năng Tải truyện (thực thi trên trang đọc chương) và Tìm kiếm truyện (nếu trang web có hỗ trợ tìm kiếm).
 
 MẸO PHÂN TÍCH QUAN TRỌNG (SỬ DỤNG DATA-AI-ROLE):
-- Trong cấu trúc HTML DOM ở trên, một số thẻ quan trọng đã được tự động gắn thuộc tính \`data-ai-role\` để chỉ ra vai trò của chúng. Hãy ưu tiên sử dụng cấu trúc của các thẻ này để viết CSS selector chính xác:
+- Trong cấu trúc HTML DOM ở trên, một số thẻ quan trọng đã được tự động gắn thuộc tính \\\`data-ai-role\\\` để chỉ ra vai trò của chúng. Hãy ưu tiên sử dụng cấu trúc của các thẻ này để viết CSS selector chính xác:
   * Khi phân tích trang đọc chương truyện:
-    + Thẻ chứa tên truyện: có thuộc tính \`data-ai-role="manga-title-candidate"\`
-    + Thẻ chứa tên chương: có thuộc tính \`data-ai-role="manga-chapter-candidate"\`
-    + Thẻ chứa các ảnh chương: có thuộc tính \`data-ai-role="manga-image-candidate"\`. Gợi ý thuộc tính lấy link ảnh nằm ở \`data-ai-attr-candidate\` (ví dụ: src hoặc data-src)
-    + Thẻ container chứa ảnh chương: có thuộc tính \`data-ai-role="manga-image-container-candidate"\`
+    + Thẻ chứa tên truyện: có thuộc tính \\\`data-ai-role="manga-title-candidate"\\\`
+    + Thẻ chứa tên chương: có thuộc tính \\\`data-ai-role="manga-chapter-candidate"\\\`
+    + Thẻ chứa các ảnh chương: có thuộc tính \\\`data-ai-role="manga-image-candidate"\\\`. Gợi ý thuộc tính lấy link ảnh nằm ở \\\`data-ai-attr-candidate\\\` (ví dụ: src hoặc data-src)
+    + Thẻ container chứa ảnh chương: có thuộc tính \\\`data-ai-role="manga-image-container-candidate"\\\`
   * Khi phân tích trang tìm kiếm truyện (nếu HTML DOM là từ trang tìm kiếm/danh mục hoặc cấu trúc tìm kiếm trang chủ):
-    + Ô nhập từ khóa (input): có thuộc tính \`data-ai-role="search-input-candidate"\`
-    + Form tìm kiếm: có thuộc tính \`data-ai-role="search-form-candidate"\`
-    + Container danh sách kết quả: có thuộc tính \`data-ai-role="search-results-container-candidate"\`
-    + Khung/Thẻ của từng truyện trong kết quả: có thuộc tính \`data-ai-role="search-result-item-candidate"\`
-    + Thẻ chứa tên truyện trong kết quả: có thuộc tính \`data-ai-role="search-result-title-candidate"\`
-    + Thẻ chứa ảnh bìa trong kết quả: có thuộc tính \`data-ai-role="search-result-cover-candidate"\`
+    + Ô nhập từ khóa (input): có thuộc tính \\\`data-ai-role="search-input-candidate"\\\`
+    + Form tìm kiếm: có thuộc tính \\\`data-ai-role="search-form-candidate"\\\`
+    + Container danh sách kết quả: có thuộc tính \\\`data-ai-role="search-results-container-candidate"\\\`
+    + Khung/Thẻ của từng truyện trong kết quả: có thuộc tính \\\`data-ai-role="search-result-item-candidate"\\\`
+    + Thẻ chứa tên truyện trong kết quả: có thuộc tính \\\`data-ai-role="search-result-title-candidate"\\\`
+    + Thẻ chứa ảnh bìa trong kết quả: có thuộc tính \\\`data-ai-role="search-result-cover-candidate"\\\`
 - Hãy sử dụng class hoặc ID hoặc cấu trúc cha-con từ các thẻ có gắn thuộc tính này để viết CSS Selector ngắn gọn và chính xác. Tránh dùng các class động/ngẫu nhiên.
 
-LƯU Ý QUAN TRỌNG VỀ TÌM KIẾM TRUYỆN & PHÂN TÍCH API/AJAX:
-- Nếu có cấu trúc tìm kiếm trang chủ ở trên, bạn hãy phân tích nó để tìm ra \`searchUrl\` (dựa trên thuộc tính action của form và name của input) cùng các cấu trúc class.
-- Nếu không có, hoặc nếu cấu trúc HTML ở trên không chứa ô tìm kiếm, bạn hãy sử dụng kiến thức sẵn có của mình về trang web này HOẶC suy luận từ cấu trúc của các hệ thống CMS phổ biến (ví dụ: WordPress Madara, MangaStream, Blogger, Custom...) để tự điền các thông tin tìm kiếm dưới đây thay vì bỏ trống hoặc điền false.
-- Ví dụ về cấu trúc URL tìm kiếm phổ biến:
-  * WordPress Madara: https://${domainPattern.replace(/\\\./g, '.')}/?s={query}&post_type=wp-manga
-  * WordPress MangaStream: https://${domainPattern.replace(/\\\./g, '.')}/?s={query}
-  * Các trang Custom khác: https://${domainPattern.replace(/\\\./g, '.')}/search?q={query} hoặc https://${domainPattern.replace(/\\\./g, '.')}/tim-kiem?keyword={query}
-
-ĐẶC BIỆT CHÚ Ý TÌM BỘ CHỌN TÁC GIẢ (AUTHOR SELECTOR):
-- Hãy luôn cố gắng tìm bộ chọn tác giả từ trang chi tiết truyện (Detail Page DOM) hoặc trang danh sách kết quả (nếu có hiển thị tác giả, ví dụ: các thẻ chứa class \`author\` hoặc liên kết có chứa \`/author/\`).
-- Nếu trong kết quả tìm kiếm danh sách không hiển thị tên tác giả nhưng trang chi tiết truyện có hiển thị (ví dụ: các thẻ có class là \`.author a\` hoặc \`.authors a\`), bạn hãy khai báo bộ chọn đó ở trường \`searchAuthorSelector\` (ví dụ: \`.author\` hoặc \`.author a\`). Hệ thống của chúng tôi được thiết kế để tự động nhận dạng bộ chọn này khi phân tích trang chi tiết truyện hoặc kết quả tìm kiếm chuyển hướng để trích xuất đầy đủ tác giả.
+QUY TẮC PHÂN TÍCH VÀ ĐIỀN THÔNG TIN CHI TIẾT:
+1. **domainPattern**: Viết chuỗi Regex ngắn gọn để khớp với tên miền của trang web đó (ví dụ: \\\`nettruyen(?:new|co|top|me|tv)?\\\\.com|nhattruyen\\\`). Hãy đảm bảo chuỗi Regex của bạn an toàn, không có lỗi cú pháp JSON.
+2. **chapterUrlPattern**: Chuỗi regex dùng để nhận diện trang đọc truyện (ví dụ: \\\`chap|chuong|chapter\\\`).
+3. **imageSelector**: Bộ chọn chọn tất cả các ảnh của chương truyện (ví dụ: \\\`.page-chapter img\\\`). Hãy viết bộ chọn sao cho không bị lẫn các banner quảng cáo hay ảnh avatar người dùng ở dưới. Nếu tên class có chứa hash ngẫu nhiên (CSS Modules), hãy dùng bộ chọn thuộc tính như \\\`[class*="wt_viewer"] img\\\`.
+4. **imageUrlAttribute**: Thuộc tính của thẻ ảnh chứa link ảnh thực tế. Vì nhiều trang sử dụng lazyload, thuộc tính này có thể là \\\`data-original\\\`, \\\`data-src\\\`, \\\`data-lazy-src\\\`. Hãy viết dưới dạng chuỗi các thuộc tính phân tách bằng dấu gạch đứng theo thứ tự ưu tiên (ví dụ: \\\`data-original|data-src|src\\\`).
+5. **titleSelector**: Bộ chọn lấy tên truyện gốc (ví dụ: \\\`h1.txt-primary\\\` hoặc \\\`.breadcrumb li:nth-last-child(2) a\\\`).
+6. **chapterSelector**: Bộ chọn lấy tên/số chương hiện tại (ví dụ: \\\`.breadcrumb li:last-child a\\\` hoặc \\\`h1.txt-primary\\\`).
+7. **referer**: Link referer cần thiết để bypass hotlink protection (thường là \\\`https://[domain-goc]/\\\`).
+8. **searchSupported**: Giá trị boolean biểu thị trang web có hỗ trợ tìm kiếm hay không.
+9. **searchUrl**: URL tìm kiếm mẫu, trong đó từ khóa tìm kiếm được thay thế bằng chuỗi \\\`{query}\\\` (ví dụ: \\\`https://www.nettruyennew.com/tim-truyen?keyword={query}\\\` hoặc \\\`https://mangadex.org/search?q={query}\\\`).
+10. **searchResultSelector**: Bộ chọn chọn từng khung chứa một truyện trong trang kết quả tìm kiếm.
+11. **searchTitleSelector** / **searchCoverSelector** / **searchAuthorSelector**: Bộ chọn tương đối (relative selector) trỏ từ thẻ truyện của kết quả (\\\`searchResultSelector\\\`) tới tên truyện, ảnh bìa và tác giả tương ứng.
 
 PHÂN TÍCH NATIVE API/AJAX ENDPOINTS:
-- Hãy nghiên cứu hoặc suy luận xem trang web này có gọi các API ngầm (XHR/Fetch) trực tiếp để lấy danh sách ảnh chương, thông tin chương hoặc tìm kiếm truyện hay không (ví dụ: gọi API trả về dữ liệu dạng JSON thay vì HTML dựng sẵn).
-- Nếu website có sử dụng API/AJAX ngầm:
-  * Hãy cung cấp thông tin phân tích chi tiết về API đó ngay bên dưới khối cấu hình JSON.
-  * Chi tiết cần bao gồm: URL Endpoint API, HTTP Method (GET/POST/etc.), định dạng của Request Payload/Query parameters (như tên tham số tìm kiếm, token bảo mật, page, v.v.), cấu trúc trường dữ liệu trong JSON trả về, và cách bóc tách giá trị từ JSON đó (ví dụ: lấy link ảnh ở thuộc tính nào, danh sách tìm kiếm ở mảng nào).
-  * Việc này rất quan trọng để chúng tôi nâng cấp mã nguồn addon, thiết lập cơ chế Direct API Query/Fetch tương tự Mangaball/Naver Webtoon nhằm tăng hiệu năng và độ ổn định.
+- Hãy nghiên cứu xem trang web có gọi API ngầm (XHR/Fetch) để tải ảnh hoặc tìm kiếm hay không. Nếu có, hãy mô tả chi tiết URL Endpoint, HTTP Method, cấu trúc Request/Response và cách parse dữ liệu ngay dưới khối JSON.
 
 Yêu cầu định dạng kết quả trả về:
-1. Đầu tiên, trả về cấu hình JSON chính xác theo mẫu dưới đây.
-2. Ngay bên dưới khối JSON, nếu có thông tin về API/AJAX ngầm của trang web, hãy đính kèm phần phân tích chi tiết của bạn. Nếu không phát hiện API khả thi, ghi rõ "Không phát hiện API ngầm khả thi, sử dụng bóc tách DOM HTML".
+1. Chỉ trả về một khối mã JSON duy nhất khớp chính xác theo mẫu dưới đây.
+2. Ngay bên dưới khối JSON, nếu có thông tin về API/AJAX ngầm, hãy đính kèm phần phân tích chi tiết của bạn. Nếu không, ghi "Không phát hiện API ngầm khả thi, sử dụng bóc tách DOM HTML".
 
-\`\`\`json
+\\\`\\\`\\\`json
 {
-  "name": "${siteName}",
-  "domainPattern": "${domainPattern}",
-  "imageSelector": "[CSS selector chọn các thẻ ảnh chương truyện, ví dụ: .page-chapter img hoặc .chapter-content img. LƯU Ý: Nếu các tên class có chứa mã hash ngẫu nhiên dạng CSS Modules như .wt_viewer--abcde, hãy dùng bộ chọn thuộc tính dạng [class*=\\"wt_viewer\\"] img]",
-  "imageUrlAttribute": "src|data-original|data-src",
-  "titleSelector": "[CSS selector chọn tên truyện, ví dụ: .manga-title hoặc h1. Dùng bộ chọn wildcard [class*=\\"title\\"] nếu tên class có hash]",
-  "chapterSelector": "[CSS selector chọn tên chương truyện, ví dụ: .chapter-title hoặc h2. Dùng bộ chọn wildcard [class*=\\"chapter\\"] nếu tên class có hash]",
-  "referer": "${sampleUrl && sampleUrl.startsWith('http') ? new URL(sampleUrl).origin + '/' : ''}",
+  "name": "\${siteName}",
+  "domainPattern": "\${domainPattern}",
+  "chapterUrlPattern": "[chuỗi regex để khớp URL trang đọc chương, ví dụ: chap|chuong|chapter]",
+  "imageSelector": "[CSS selector chọn các thẻ ảnh chương truyện]",
+  "imageUrlAttribute": "[tên thuộc tính hoặc danh sách phân tách bằng | ví dụ: data-original|data-src|src]",
+  "titleSelector": "[CSS selector chọn tên truyện]",
+  "chapterSelector": "[CSS selector chọn tên chương truyện]",
+  "referer": "\${sampleUrl && sampleUrl.startsWith('http') ? new URL(sampleUrl).origin + '/' : ''}",
   "isNsfw": false,
   "searchSupported": true,
-  "searchUrl": "[Link URL tìm kiếm của website với tham số từ khóa được thay bằng {query}, ví dụ: https://${domainPattern.replace(/\\\./g, '.')}/?s={query} hoặc https://${domainPattern.replace(/\\\./g, '.')}/search?q={query}. Hãy tự suy luận dựa trên tên miền và CMS của trang]",
-  "searchResultSelector": "[CSS selector chọn từng thẻ/khung chứa thông tin của một truyện trong danh sách kết quả tìm kiếm (ví dụ: .c-tabs-item__content, .search-wrap .row .item-col, .list-story .item-list hoặc tương tự)]",
-  "searchTitleSelector": "[CSS selector (tương đối từ searchResultSelector) để chọn thẻ chứa tên truyện, ví dụ: .post-title a hoặc h3 a]",
-  "searchCoverSelector": "[CSS selector (tương đối từ searchResultSelector) để chọn thẻ ảnh bìa, ví dụ: img]",
-  "searchAuthorSelector": "[CSS selector (tương đối từ searchResultSelector) để chọn thẻ chứa tên tác giả nếu có, ví dụ: .author a hoặc để rỗng]"
+  "searchUrl": "[Link URL tìm kiếm của trang với từ khóa là {query}, ví dụ: https://example.com/search?q={query}]",
+  "searchResultSelector": "[CSS selector chọn khung của từng truyện trong kết quả]",
+  "searchTitleSelector": "[CSS selector tương đối chọn tên truyện]",
+  "searchCoverSelector": "[CSS selector tương đối chọn ảnh bìa]",
+  "searchAuthorSelector": "[CSS selector tương đối chọn tác giả hoặc để trống nếu không có]"
 }
-\`\`\``;
+\\\`\\\`\\\``;
 
       try {
         await navigator.clipboard.writeText(fullPromptText);
