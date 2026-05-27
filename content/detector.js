@@ -437,6 +437,22 @@
                 if (imgs[0]) {
                   imgs[0].setAttribute('data-ai-role', 'search-result-cover-candidate');
                 }
+
+                // Find author candidate in search result card
+                try {
+                  const authorEl = Array.from(el.querySelectorAll('span, a, p, div')).find(sub => {
+                    if (sub === titleLink) return false;
+                    const txt = sub.textContent.trim().toLowerCase();
+                    const subId = (sub.id || '').toLowerCase();
+                    const subClass = (sub.className || '').toLowerCase();
+                    if (/author|artist|writer|creator|tac-gia|tacgia|hoa-si/i.test(subId + subClass)) return true;
+                    if (/^(?:tác giả|tác giả\s*\/\s*họa sĩ|author|artist|creator)\s*:\s*/i.test(txt)) return true;
+                    return false;
+                  });
+                  if (authorEl) {
+                    authorEl.setAttribute('data-ai-role', 'search-result-author-candidate');
+                  }
+                } catch (_) {}
                 
                 // Also mark the container parent
                 if (parent !== clone) {
