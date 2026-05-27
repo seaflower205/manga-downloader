@@ -445,8 +445,10 @@
                     const txt = sub.textContent.trim().toLowerCase();
                     const subId = (sub.id || '').toLowerCase();
                     const subClass = (sub.className || '').toLowerCase();
+                    const href = (sub.tagName.toLowerCase() === 'a' && sub.getAttribute('href')) ? sub.getAttribute('href').toLowerCase() : '';
                     if (/author|artist|writer|creator|tac-gia|tacgia|hoa-si/i.test(subId + subClass)) return true;
                     if (/^(?:tác giả|tác giả\s*\/\s*họa sĩ|author|artist|creator)\s*:\s*/i.test(txt)) return true;
+                    if (href && /\/(?:author|artist|creator|tac-gia|tac-gia-manga|tac-gia-truyen)\//i.test(href)) return true;
                     return false;
                   });
                   if (authorEl) {

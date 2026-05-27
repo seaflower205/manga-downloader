@@ -188,10 +188,93 @@
     return '';
   }
 
+  function getValueByPath(obj, path) {
+    if (!path || !obj) return '';
+    const parts = path.split('.');
+    let current = obj;
+    for (const part of parts) {
+      if (current === null || current === undefined) return '';
+      const arrayMatch = part.match(/^([^\[]+)\[(\d+)\]$/);
+      if (arrayMatch) {
+        const key = arrayMatch[1];
+        const idx = parseInt(arrayMatch[2], 10);
+        current = current[key];
+        if (Array.isArray(current)) {
+          current = current[idx];
+        } else {
+          return '';
+        }
+      } else {
+        current = current[part];
+      }
+    }
+    return current;
+  }
+
+  function getArrayByPath(obj, path) {
+    if (!path) return Array.isArray(obj) ? obj : [];
+    const parts = path.split('.');
+    let current = obj;
+    for (const part of parts) {
+      if (current === null || current === undefined) return [];
+      current = current[part];
+    }
+    return Array.isArray(current) ? current : [];
+  }
+
   // Generic parser for custom sites using their configured selectors
   function parseCustomSearchHtml(html, site, siteKey) {
     const results = [];
-    if (!site.searchUrl || !site.searchResultSelector) return results;
+    if (!site.searchUrl) return results;
+
+    // 1. Check if JSON search API response is configured or detected
+    const trimmedHtml = (html || '').trim();
+    const isJson = site.searchResponseFormat === 'json' || trimmedHtml.startsWith('{') || trimmedHtml.startsWith('[');
+    
+    if (isJson) {
+      try {
+        const data = JSON.parse(trimmedHtml);
+        const items = getArrayByPath(data, site.searchResultPath);
+        const domain = site.domainPattern ? site.domainPattern.replace(/\\/g, '').split('|')[0] : `${siteKey}.com`;
+
+        items.forEach(item => {
+          if (!item || typeof item !== 'object') return;
+
+          let title = String(getValueByPath(item, site.searchTitlePath || 'title') || '');
+          let cover = String(getValueByPath(item, site.searchCoverPath || 'cover') || '');
+          let pathOrUrl = String(getValueByPath(item, site.searchUrlPath || 'url') || '');
+          let author = String(getValueByPath(item, site.searchAuthorPath || 'author') || '');
+
+          if (!title) return;
+
+          title = title.replace(/<[^>]+>/g, '').trim();
+
+          const itemUrl = Utils.normalizeTrustedHttpUrl(pathOrUrl, [domain], site.referer || `https://${siteKey}.com/`);
+          if (!itemUrl) return;
+
+          if (cover) {
+            cover = Utils.normalizeTrustedHttpUrl(cover, [domain], site.referer || `https://${siteKey}.com/`);
+          }
+
+          author = (author || 'Nhiều tác giả').replace(/<[^>]+>/g, '').trim();
+
+          results.push({
+            title,
+            author,
+            thumbnail: cover,
+            url: itemUrl,
+            source: site.name || siteKey,
+            sourceKey: siteKey
+          });
+        });
+
+        return results;
+      } catch (jsonErr) {
+        console.warn(`parseCustomSearchHtml: Failed to parse JSON response for ${siteKey}, fallback to HTML parsing:`, jsonErr.message);
+      }
+    }
+
+    if (!site.searchResultSelector) return results;
 
     const selectorParts = site.searchResultSelector.split(/\s+/);
     const targetSelector = selectorParts[selectorParts.length - 1];

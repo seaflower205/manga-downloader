@@ -276,6 +276,13 @@
       state.matchedSite = matchedSite;
       state.matchedKey = matchedKey;
 
+      try {
+        const info = {
+          imagesJsonVariable: matchedSite.imagesJsonVariable || ''
+        };
+        document.documentElement.setAttribute('data-matched-site-info', JSON.stringify(info));
+      } catch (e) {}
+
       // 1. Set up DOM bridge mutation observer for MAIN world interceptions
       const bridge = document.getElementById(BRIDGE_ID);
       if (bridge) {
@@ -299,6 +306,108 @@
     } catch (err) {
       console.error('Manga Downloader: Content initialization failed:', err);
     }
+  }
+
+  function checkIfSameChapter(url1, url2, pattern) {
+    try {
+      const u1 = new URL(url1);
+      const u2 = new URL(url2);
+      if (u1.hostname !== u2.hostname) return false;
+      if (pattern) {
+        const m1 = u1.href.match(new RegExp(pattern, 'i'));
+        const m2 = u2.href.match(new RegExp(pattern, 'i'));
+        if (m1 && m2 && m1[0] === m2[0]) return true;
+        return false;
+      }
+      const p1 = u1.pathname.replace(/\/p(?:age)?[-_]?\d+|\/\d+$/i, '');
+      const p2 = u2.pathname.replace(/\/p(?:age)?[-_]?\d+|\/\d+$/i, '');
+      return p1 === p2;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  async function collectImagesPaging(matchedSite, statusText) {
+    const collectedUrls = new Set();
+    const startUrl = window.location.href;
+    let samePageCount = 0;
+    
+    // Grab whatever images are currently in the DOM
+    Downloader.getImages().forEach(url => {
+      if (url) collectedUrls.add(url);
+    });
+
+    statusText.style.color = '#3B82F6';
+    statusText.textContent = `Đang khởi động chế độ chuyển trang tự động...`;
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    for (let page = 1; page <= 250; page++) {
+      statusText.textContent = `Đang thu thập trang ${collectedUrls.size}...`;
+      
+      let actionTriggered = false;
+      if (matchedSite.nextPageSelector) {
+        if (matchedSite.nextPageSelector.startsWith('key:')) {
+          const keyName = matchedSite.nextPageSelector.substring(4);
+          const keyEvent = new KeyboardEvent('keydown', {
+            key: keyName,
+            code: keyName,
+            bubbles: true,
+            cancelable: true
+          });
+          document.dispatchEvent(keyEvent);
+          actionTriggered = true;
+        } else {
+          try {
+            const nextBtn = document.querySelector(matchedSite.nextPageSelector);
+            if (nextBtn) {
+              nextBtn.click();
+              actionTriggered = true;
+            }
+          } catch (e) {
+            console.warn('Manga Downloader: nextPageSelector click failed', e);
+          }
+        }
+      }
+
+      if (!actionTriggered) {
+        console.log('Manga Downloader: nextPageSelector element not found or trigger failed. Ending collection.');
+        break;
+      }
+
+      // Wait for page turn and render (900ms)
+      await new Promise(resolve => setTimeout(resolve, 900));
+
+      const currentImages = Downloader.getImages();
+      let addedNew = false;
+      currentImages.forEach(url => {
+        if (url && !collectedUrls.has(url)) {
+          collectedUrls.add(url);
+          addedNew = true;
+        }
+      });
+
+      if (addedNew) {
+        samePageCount = 0;
+      } else {
+        samePageCount++;
+        if (samePageCount > 10) {
+          console.log('Manga Downloader: Image did not change for multiple pages. Ending collection.');
+          break;
+        }
+      }
+
+      if (window.location.href !== startUrl) {
+        const isSame = checkIfSameChapter(startUrl, window.location.href, matchedSite.chapterUrlPattern);
+        if (!isSame) {
+          console.log('Manga Downloader: Chapter changed. Stopping collection.');
+          window.history.back();
+          await new Promise(resolve => setTimeout(resolve, 800));
+          break;
+        }
+      }
+    }
+
+    return Array.from(collectedUrls);
   }
 
   // Trigger Download Flow
@@ -332,7 +441,17 @@
 
     {
       // Standard image downloads handler
-      const images = Downloader.getImages();
+      let images = Downloader.getImages();
+
+      // If nextPageSelector is configured, collect page-by-page images dynamically
+      if (matchedSite && matchedSite.nextPageSelector && images.length <= 1) {
+        try {
+          images = await collectImagesPaging(matchedSite, statusText);
+        } catch (pagingErr) {
+          console.error('Manga Downloader: Paging collection failed, falling back to static images:', pagingErr);
+        }
+      }
+
       const needMerging = images.length > 30;
       const targetCount = 20;
       const groupSize = needMerging ? Math.ceil(images.length / targetCount) : 1;

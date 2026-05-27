@@ -556,12 +556,23 @@ document.addEventListener('DOMContentLoaded', async () => {
       referer: site.referer || ''
     };
     if (site.isNsfw) cleanSite.isNsfw = true;
+    if (site.nextPageSelector) cleanSite.nextPageSelector = site.nextPageSelector;
+    if (site.imagesResponseFormat) cleanSite.imagesResponseFormat = site.imagesResponseFormat;
+    if (site.imagesResultPath) cleanSite.imagesResultPath = site.imagesResultPath;
+    if (site.imagesJsonVariable) cleanSite.imagesJsonVariable = site.imagesJsonVariable;
+
     if (site.searchUrl || site.searchResultSelector) {
       cleanSite.searchUrl = site.searchUrl || '';
       cleanSite.searchResultSelector = site.searchResultSelector || '';
       cleanSite.searchTitleSelector = site.searchTitleSelector || '';
       cleanSite.searchCoverSelector = site.searchCoverSelector || '';
       cleanSite.searchAuthorSelector = site.searchAuthorSelector || '';
+      if (site.searchResponseFormat) cleanSite.searchResponseFormat = site.searchResponseFormat;
+      if (site.searchResultPath) cleanSite.searchResultPath = site.searchResultPath;
+      if (site.searchTitlePath) cleanSite.searchTitlePath = site.searchTitlePath;
+      if (site.searchCoverPath) cleanSite.searchCoverPath = site.searchCoverPath;
+      if (site.searchUrlPath) cleanSite.searchUrlPath = site.searchUrlPath;
+      if (site.searchAuthorPath) cleanSite.searchAuthorPath = site.searchAuthorPath;
     }
 
     jsonConfigInput.value = JSON.stringify(cleanSite, null, 2);

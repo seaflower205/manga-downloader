@@ -162,6 +162,24 @@
       .filter(attr => /^[a-zA-Z0-9:_-]{1,40}$/.test(attr))
       .join('|') || 'src';
 
+    let nextPageSelectorValue = '';
+    if (rawSite.nextPageSelector) {
+      const rawVal = toSafeString(rawSite.nextPageSelector, DEFAULT_LIMITS.selector);
+      if (rawVal.startsWith('key:')) {
+        nextPageSelectorValue = rawVal;
+        if (!/^key:[a-zA-Z0-9_-]+$/.test(rawVal)) {
+          errors.push('Next page selector key simulation format is invalid.');
+        }
+      } else {
+        const valSel = validateSelectorString(rawVal, false);
+        if (!valSel.valid) {
+          errors.push('Next page selector is invalid.');
+        } else {
+          nextPageSelectorValue = valSel.value;
+        }
+      }
+    }
+
     const refererRaw = toSafeString(rawSite.referer || '', DEFAULT_LIMITS.url);
     const referer = refererRaw ? normalizeUrl(refererRaw, { allowHttp: true }) : '';
     if (refererRaw && !referer) errors.push('Referer must be a valid http(s) URL.');
@@ -185,6 +203,17 @@
     const searchAuthorSelector = validateSelectorString(rawSite.searchAuthorSelector || '', false);
     if (!searchAuthorSelector.valid) errors.push('Search author selector is invalid.');
 
+    const searchResponseFormat = toSafeString(rawSite.searchResponseFormat || 'html', 20);
+    const searchResultPath = toSafeString(rawSite.searchResultPath || '', 100);
+    const searchTitlePath = toSafeString(rawSite.searchTitlePath || '', 100);
+    const searchCoverPath = toSafeString(rawSite.searchCoverPath || '', 100);
+    const searchUrlPath = toSafeString(rawSite.searchUrlPath || '', 100);
+    const searchAuthorPath = toSafeString(rawSite.searchAuthorPath || '', 100);
+
+    const imagesResponseFormat = toSafeString(rawSite.imagesResponseFormat || 'html', 20);
+    const imagesResultPath = toSafeString(rawSite.imagesResultPath || '', 100);
+    const imagesJsonVariable = toSafeString(rawSite.imagesJsonVariable || '', 100);
+
     if (errors.length > 0) {
       return { valid: false, errors };
     }
@@ -198,6 +227,7 @@
         chapterUrlPattern,
         imageSelector: imageSelector.value,
         imageUrlAttribute,
+        nextPageSelector: nextPageSelectorValue,
         titleSelector: titleSelector.value,
         chapterSelector: chapterSelector.value,
         referer,
@@ -207,7 +237,16 @@
         searchResultSelector: searchResultSelector.value,
         searchTitleSelector: searchTitleSelector.value,
         searchCoverSelector: searchCoverSelector.value,
-        searchAuthorSelector: searchAuthorSelector.value
+        searchAuthorSelector: searchAuthorSelector.value,
+        searchResponseFormat,
+        searchResultPath,
+        searchTitlePath,
+        searchCoverPath,
+        searchUrlPath,
+        searchAuthorPath,
+        imagesResponseFormat,
+        imagesResultPath,
+        imagesJsonVariable
       },
       errors: []
     };

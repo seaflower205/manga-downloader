@@ -474,30 +474,50 @@ CÁC VAI TRÒ AI BỔ SUNG (NẾU CÓ):
   * Menu dropdown chọn chương: \\\`data-ai-role="manga-chapters-dropdown-candidate"\\\`.
   * Khung danh sách tất cả chương: \\\`data-ai-role="manga-chapters-list-candidate"\\\`.
 
-PHÂN TÍCH NATIVE API/AJAX ENDPOINTS:
-- Hãy nghiên cứu xem trang web có gọi API ngầm (XHR/Fetch) để tải ảnh hoặc tìm kiếm hay không. Nếu có, hãy mô tả chi tiết URL Endpoint, HTTP Method, cấu trúc Request/Response và cách parse dữ liệu ngay dưới khối JSON.
+PHÂN TÍCH NATIVE API/AJAX ENDPOINTS & BIẾN TOÀN CỤC:
+- Hãy nghiên cứu xem trang web có gọi API ngầm (XHR/Fetch) để tải ảnh hoặc tìm kiếm hay không, hoặc danh sách ảnh có được lưu trong biến window (ví dụ: window.chapterImages = [...]) hay script JSON.
+- Nếu trang web sử dụng API tìm kiếm (JSON), cấu hình các tham số sau:
+  * "searchResponseFormat": "json"
+  * "searchResultPath": Đường dẫn trỏ tới mảng danh sách truyện (ví dụ: "data" (hoặc "results"))
+  * "searchTitlePath", "searchCoverPath", "searchUrlPath", "searchAuthorPath": Đường dẫn tương đối lấy thông tin tương ứng trong từng truyện JSON.
+- Nếu trang web dùng biến toàn cục hoặc thẻ script JSON để lưu ảnh, cấu hình các tham số sau:
+  * "imagesResponseFormat": "json"
+  * "imagesResultPath": Đường dẫn trỏ tới mảng link ảnh trong JSON/biến.
+  * "imagesJsonVariable": Tên biến toàn cục lưu trữ danh sách link ảnh hoặc đường dẫn biến dạng "__NEXT_DATA__.props.pageProps.images" mà tiện ích có thể truy cập.
+- Đối với các trang web đọc truyện theo kiểu click chuyển trang (page-by-page, ví dụ: Mangadex ở chế độ đọc từng trang một), hãy tìm nút "Trang sau" (Next Page) hoặc phím tắt và điền vào trường:
+  * "nextPageSelector": Selector của nút chuyển trang tiếp theo, hoặc điền "key:ArrowRight" nếu trang hỗ trợ bấm phím mũi tên phải để chuyển trang.
 
 Yêu cầu định dạng kết quả trả về:
 1. Chỉ trả về một khối mã JSON duy nhất khớp chính xác theo mẫu dưới đây.
-2. Ngay bên dưới khối JSON, nếu có thông tin về API/AJAX ngầm, hãy đính kèm phần phân tích chi tiết của bạn. Nếu không, ghi "Không phát hiện API ngầm khả thi, sử dụng bóc tách DOM HTML".
+2. Ngay bên dưới khối JSON, nếu có thông tin về API/AJAX ngầm hoặc cấu trúc biến đặc biệt, hãy đính kèm phần phân tích chi tiết của bạn. Nếu không, ghi "Không phát hiện API ngầm khả thi, sử dụng bóc tách DOM HTML".
 
 \\\`\\\`\\\`json
 {
   "name": "\${siteName}",
   "domainPattern": "\${domainPattern}",
   "chapterUrlPattern": "[chuỗi regex để khớp URL trang đọc chương, ví dụ: chap|chuong|chapter]",
-  "imageSelector": "[CSS selector chọn các thẻ ảnh chương truyện]",
-  "imageUrlAttribute": "[tên thuộc tính hoặc danh sách phân tách bằng | ví dụ: data-original|data-src|src]",
+  "imageSelector": "[CSS selector chọn các thẻ ảnh chương truyện - để trống nếu dùng API/biến]",
+  "imageUrlAttribute": "[tên thuộc tính hoặc danh sách phân tách bằng | ví dụ: data-original|data-src|src - để trống nếu dùng API/biến]",
+  "nextPageSelector": "[CSS selector của nút chuyển trang tiếp theo, hoặc dạng 'key:ArrowRight' nếu cần giả lập nhấn nút bàn phím chuyển trang - để trống nếu là trang cuộn dọc thông thường]",
   "titleSelector": "[CSS selector chọn tên truyện]",
   "chapterSelector": "[CSS selector chọn tên chương truyện]",
   "referer": "\${sampleUrl && sampleUrl.startsWith('http') ? new URL(sampleUrl).origin + '/' : ''}",
   "isNsfw": false,
+  "imagesResponseFormat": "html",
+  "imagesResultPath": "",
+  "imagesJsonVariable": "",
   "searchSupported": true,
   "searchUrl": "[Link URL tìm kiếm của trang với từ khóa là {query}, ví dụ: https://example.com/search?q={query}]",
-  "searchResultSelector": "[CSS selector chọn khung của từng truyện trong kết quả]",
-  "searchTitleSelector": "[CSS selector tương đối chọn tên truyện]",
-  "searchCoverSelector": "[CSS selector tương đối chọn ảnh bìa]",
-  "searchAuthorSelector": "[CSS selector tương đối chọn tác giả hoặc để trống nếu không có]"
+  "searchResponseFormat": "html",
+  "searchResultPath": "",
+  "searchTitlePath": "",
+  "searchCoverPath": "",
+  "searchUrlPath": "",
+  "searchAuthorPath": "",
+  "searchResultSelector": "[CSS selector chọn khung của từng truyện trong kết quả - chỉ cần thiết nếu searchResponseFormat là html]",
+  "searchTitleSelector": "[CSS selector tương đối chọn tên truyện - chỉ cần thiết nếu searchResponseFormat là html]",
+  "searchCoverSelector": "[CSS selector tương đối chọn ảnh bìa - chỉ cần thiết nếu searchResponseFormat là html]",
+  "searchAuthorSelector": "[CSS selector tương đối chọn tác giả - chỉ cần thiết nếu searchResponseFormat là html hoặc để trống]"
 }
 \\\`\\\`\\\``;
 
