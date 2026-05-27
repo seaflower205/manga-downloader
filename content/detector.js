@@ -505,6 +505,48 @@
         }
       });
     } catch (e) {}
+
+    // 7. Manga & Author search filters (genres, status, sorting, author inputs)
+    try {
+      // 7.1 Input search author or filters
+      clone.querySelectorAll('input').forEach(input => {
+        const type = (input.getAttribute('type') || 'text').toLowerCase();
+        if (['text', 'search'].includes(type)) {
+          const id = (input.id || '').toLowerCase();
+          const name = (input.getAttribute('name') || '').toLowerCase();
+          const className = (input.className || '').toLowerCase();
+          const placeholder = (input.getAttribute('placeholder') || '').toLowerCase();
+          if (/author|artist|writer|tac-gia|tacgia|hoa-si/i.test(id + name + className + placeholder)) {
+            input.setAttribute('data-ai-role', 'manga-filter-author-candidate');
+          }
+        }
+      });
+
+      // 7.2 Select dropdowns and elements for genre, status, sorting filters
+      clone.querySelectorAll('select, div, ul, ol').forEach(el => {
+        const id = (el.id || '').toLowerCase();
+        const className = (el.className || '').toLowerCase();
+        const name = (el.getAttribute?.('name') || '').toLowerCase();
+        const text = (el.textContent || '').toLowerCase().substring(0, 100);
+        
+        if (/genre|the-loai|theloai|tag|category/i.test(id + className + name) || /thể loại|tags/i.test(text)) {
+          el.setAttribute('data-ai-role', 'manga-filter-genre-candidate');
+        } else if (/status|trang-thai|trangthai|tinh-trang/i.test(id + className + name) || /trạng thái|tình trạng/i.test(text)) {
+          el.setAttribute('data-ai-role', 'manga-filter-status-candidate');
+        } else if (/sort|order|sap-xep|sapxep/i.test(id + className + name) || /sắp xếp/i.test(text)) {
+          el.setAttribute('data-ai-role', 'manga-filter-sort-candidate');
+        }
+      });
+
+      // 7.3 General filter container
+      clone.querySelectorAll('div, form, section, aside').forEach(el => {
+        const id = (el.id || '').toLowerCase();
+        const className = (el.className || '').toLowerCase();
+        if (/filter|search-filter|bo-loc|boloc/i.test(id + className)) {
+          el.setAttribute('data-ai-role', 'manga-filters-container-candidate');
+        }
+      });
+    } catch (e) {}
   }
 
   function collapseRepetitiveSiblings(parent) {

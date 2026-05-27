@@ -452,6 +452,12 @@ MẸO PHÂN TÍCH QUAN TRỌNG (SỬ DỤNG DATA-AI-ROLE):
     + Khung/Thẻ của từng truyện trong kết quả: có thuộc tính \\\`data-ai-role="search-result-item-candidate"\\\`
     + Thẻ chứa tên truyện trong kết quả: có thuộc tính \\\`data-ai-role="search-result-title-candidate"\\\`
     + Thẻ chứa ảnh bìa trong kết quả: có thuộc tính \\\`data-ai-role="search-result-cover-candidate"\\\`
+    + Thẻ chứa tác giả trong kết quả: có thuộc tính \\\`data-ai-role="search-result-author-candidate"\\\`
+    + Khung/Bảng điều khiển bộ lọc tìm kiếm (filters panel): có thuộc tính \\\`data-ai-role="manga-filters-container-candidate"\\\`
+    + Ô nhập/bộ chọn tìm kiếm theo tác giả: có thuộc tính \\\`data-ai-role="manga-filter-author-candidate"\\\`
+    + Bộ chọn thể loại (genres/tags): có thuộc tính \\\`data-ai-role="manga-filter-genre-candidate"\\\`
+    + Bộ chọn trạng thái truyện (status): có thuộc tính \\\`data-ai-role="manga-filter-status-candidate"\\\`
+    + Bộ chọn sắp xếp kết quả (sorting): có thuộc tính \\\`data-ai-role="manga-filter-sort-candidate"\\\`
 - Hãy sử dụng class hoặc ID hoặc cấu trúc cha-con từ các thẻ có gắn thuộc tính này để viết CSS Selector ngắn gọn và chính xác. Tránh dùng các class động/ngẫu nhiên.
 
 QUY TẮC PHÂN TÍCH VÀ ĐIỀN THÔNG TIN CHI TIẾT:
