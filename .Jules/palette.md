@@ -1,0 +1,3 @@
+## 2024-05-24 - WAI-ARIA states for custom UI components
+**Learning:** Custom UI components (like navigation tabs) built with vanilla JS require manual WAI-ARIA attribute management (`role`, `aria-selected`, `aria-controls`) and dynamic state toggling to remain properly accessible. Screen readers won't announce tab state changes if `aria-selected` is not synced with visual `active` classes.
+**Action:** Always ensure that custom navigation components explicitly set structural roles (`tablist`, `tab`, `tabpanel`) and that JavaScript event listeners toggle their corresponding ARIA state attributes alongside visual classes.
