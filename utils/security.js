@@ -166,6 +166,25 @@
     const referer = refererRaw ? normalizeUrl(refererRaw, { allowHttp: true }) : '';
     if (refererRaw && !referer) errors.push('Referer must be a valid http(s) URL.');
 
+    const isNsfw = Boolean(rawSite.isNsfw);
+    const searchSupported = Boolean(rawSite.searchSupported) || Boolean(rawSite.searchUrl && rawSite.searchResultSelector);
+
+    const searchUrlRaw = toSafeString(rawSite.searchUrl || '', DEFAULT_LIMITS.url);
+    const searchUrl = searchUrlRaw ? normalizeUrl(searchUrlRaw.replace(/\{.*?\}/g, 'test'), { allowHttp: true }) : '';
+    if (searchUrlRaw && !searchUrl) errors.push('Search URL must be a valid http(s) URL.');
+
+    const searchResultSelector = validateSelectorString(rawSite.searchResultSelector || '', false);
+    if (!searchResultSelector.valid) errors.push('Search result selector is invalid.');
+
+    const searchTitleSelector = validateSelectorString(rawSite.searchTitleSelector || '', false);
+    if (!searchTitleSelector.valid) errors.push('Search title selector is invalid.');
+
+    const searchCoverSelector = validateSelectorString(rawSite.searchCoverSelector || '', false);
+    if (!searchCoverSelector.valid) errors.push('Search cover selector is invalid.');
+
+    const searchAuthorSelector = validateSelectorString(rawSite.searchAuthorSelector || '', false);
+    if (!searchAuthorSelector.valid) errors.push('Search author selector is invalid.');
+
     if (errors.length > 0) {
       return { valid: false, errors };
     }
@@ -181,7 +200,14 @@
         imageUrlAttribute,
         titleSelector: titleSelector.value,
         chapterSelector: chapterSelector.value,
-        referer
+        referer,
+        isNsfw,
+        searchSupported,
+        searchUrl: searchUrlRaw ? searchUrlRaw : '',
+        searchResultSelector: searchResultSelector.value,
+        searchTitleSelector: searchTitleSelector.value,
+        searchCoverSelector: searchCoverSelector.value,
+        searchAuthorSelector: searchAuthorSelector.value
       },
       errors: []
     };
@@ -244,13 +270,13 @@
   }
 
   function isSafeZipEntryName(value) {
-    return /^[0-9A-Za-z._-]{1,80}\.(?:jpg|jpeg|png|webp)$/i.test(toSafeString(value, 100));
+    return /^[0-9A-Za-z._-]{1,80}\.(?:jpg|jpeg|png|webp|gif)$/i.test(toSafeString(value, 100));
   }
 
   function isSafeImageDataUrl(value) {
     const dataUrl = typeof value === 'string' ? value : '';
     return dataUrl.length <= DEFAULT_LIMITS.dataUrl &&
-      /^data:image\/(?:jpeg|jpg|png|webp);base64,[A-Za-z0-9+/=\r\n]+$/i.test(dataUrl);
+      /^data:image\/(?:jpeg|jpg|png|webp|gif);base64,[A-Za-z0-9+/=\r\n]+$/i.test(dataUrl);
   }
 
   function normalizeSearchResult(item) {

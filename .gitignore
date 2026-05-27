@@ -1,6 +1,7 @@
 # OS metadata files
 .DS_Store
 Thumbs.db
+desktop.ini
 
 # Local development files
 *.log
@@ -10,18 +11,58 @@ build/
 session_log.md
 walkthrough.md
 task.md
+
+# AI Agent files (internal tooling)
 AGENT_SECURITY_TASK.md
+DATA_CLEANING_SKILL.md
+SKILL.md
+UX/
+ui-ux-pro-max-skill/
+
+# Debug and diagnostic data
 diagnostics/
 captured_dom/
 error_reports/
+scratch/
+mangaball_*.html
 
-# External tools (not part of the extension)
-ui-ux-pro-max-skill/
-UX/
-SKILL.md
+# Browser profile directories (contain personal data)
 chrome-profile/
 chrome-profile-debug/
 chrome-profile-temp/
+edge-profile/
+
+# Local launcher scripts (contain local filesystem paths)
 launch_chrome.bat
+launch_edge.bat
 chrome_start.log
+
+# Screenshots and debug images (except extension icons)
 *.png
+!icons/*.png
+
+# Downloaded content
+*Chapter*/
+*chapter*/
+Perverted*/
+
+# Dependencies
+node_modules/
+
+# Environment and secrets
+.env
+.env.*
+.secret
+*.key
+*.pem
+*.crx
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Package archives
+web-ext-artifacts/

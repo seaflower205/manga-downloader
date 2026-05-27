@@ -1,46 +1,61 @@
-// Background Service Worker for Manga Downloader Premium
-importScripts('../utils/jszip.min.js', '../utils/security.js');
+// Main Service Worker Entry Point for Manga Downloader Premium
+importScripts(
+  '../utils/jszip.min.js',
+  '../utils/security.js',
+  'utils.js',
+  'network.js',
+  'search_fallback.js',
+  'search_providers.js'
+);
 
 const Security = self.MangaSecurity;
-let nextDnrRuleId = Math.floor(Date.now() % 1000000) + 2000;
-const ALLOWED_IMAGE_CONTENT_TYPES = new Set(['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif']);
-const MAX_FETCH_IMAGE_BYTES = Math.floor(Security.DEFAULT_LIMITS.dataUrl * 0.75);
+const Utils = self.BgUtils;
+const Network = self.BgNetwork;
+const Providers = self.BgSearchProviders;
 
-function isAllowedImageContentType(value) {
-  const type = Security.toSafeString(value, 80).toLowerCase().split(';')[0].trim();
-  return !type || ALLOWED_IMAGE_CONTENT_TYPES.has(type);
-}
-
-function assertSafeImageResponse(response, buffer) {
-  const lengthHeader = response && response.headers ? response.headers.get('content-length') : '';
-  const contentLength = lengthHeader ? Number.parseInt(lengthHeader, 10) : 0;
-  if (Number.isFinite(contentLength) && contentLength > MAX_FETCH_IMAGE_BYTES) {
-    throw new Error('Image response is too large');
+// Helper to initialize and merge site profiles from sites.json
+async function initializeSites() {
+  try {
+    const response = await fetch(chrome.runtime.getURL('config/sites.json'));
+    const defaultSites = sanitizeSitesForStorage(await response.json()).sites;
+    const stored = await chrome.storage.local.get('sites');
+    if (!stored.sites) {
+      await chrome.storage.local.set({ sites: defaultSites });
+      console.log('Default site profiles imported.');
+    } else {
+      // Merge but keep user-defined/updated configurations (deep merge at site level)
+      const localSites = sanitizeSitesForStorage(stored.sites).sites;
+      
+      const mergedSites = {};
+      for (const key in defaultSites) {
+        const local = localSites[key] || {};
+        mergedSites[key] = {
+          ...defaultSites[key],
+          ...local,
+          searchSupported: defaultSites[key].searchSupported === true ? true : (local.searchSupported !== undefined ? local.searchSupported : defaultSites[key].searchSupported),
+          searchUrl: (local.searchUrl && local.searchUrl.trim()) ? local.searchUrl : (defaultSites[key].searchUrl || ''),
+          searchResultSelector: (local.searchResultSelector && local.searchResultSelector.trim()) ? local.searchResultSelector : (defaultSites[key].searchResultSelector || ''),
+          searchTitleSelector: (local.searchTitleSelector && local.searchTitleSelector.trim()) ? local.searchTitleSelector : (defaultSites[key].searchTitleSelector || ''),
+          searchCoverSelector: (local.searchCoverSelector && local.searchCoverSelector.trim()) ? local.searchCoverSelector : (defaultSites[key].searchCoverSelector || ''),
+          searchAuthorSelector: (local.searchAuthorSelector && local.searchAuthorSelector.trim()) ? local.searchAuthorSelector : (defaultSites[key].searchAuthorSelector || '')
+        };
+      }
+      for (const key in localSites) {
+        if (!defaultSites[key]) {
+          mergedSites[key] = localSites[key]; // Custom sites
+          if (mergedSites[key] && mergedSites[key].searchUrl && mergedSites[key].searchResultSelector) {
+            mergedSites[key].searchSupported = true;
+          }
+        }
+      }
+      await chrome.storage.local.set({ sites: mergedSites });
+      console.log('Site profiles merged and updated.');
+    }
+    await registerRefererBypassRules();
+  } catch (error) {
+    console.error('Failed to initialize sites configuration:', error);
+    Utils.logBackgroundError('initialize_sites', error);
   }
-
-  const contentType = response && response.headers ? response.headers.get('content-type') : '';
-  if (!isAllowedImageContentType(contentType)) {
-    throw new Error('Unsupported image content type');
-  }
-
-  if (buffer && typeof buffer.byteLength === 'number' && buffer.byteLength > MAX_FETCH_IMAGE_BYTES) {
-    throw new Error('Image buffer is too large');
-  }
-}
-
-function escapeDnrRegex(value) {
-  return Security.toSafeString(value, Security.DEFAULT_LIMITS.url)
-    .replace(/[\\^$.*+?()[\]{}|]/g, '\\$&');
-}
-
-function getNextDnrRuleId() {
-  nextDnrRuleId += 1;
-  if (nextDnrRuleId > 1000000000) nextDnrRuleId = 2001;
-  return nextDnrRuleId;
-}
-
-function logBackgroundError(feature, error, metadata = {}) {
-  Security.logDiagnostic({ feature, error, metadata }).catch(() => {});
 }
 
 function sanitizeSitesForStorage(rawSites) {
@@ -53,47 +68,6 @@ function sanitizeSitesForStorage(rawSites) {
   }
   return result;
 }
-
-// Helper to initialize and merge site profiles from sites.json
-async function initializeSites() {
-  try {
-    const response = await fetch(chrome.runtime.getURL('config/sites.json'));
-    const defaultSites = sanitizeSitesForStorage(await response.json()).sites;
-    const stored = await chrome.storage.local.get('sites');
-    if (!stored.sites) {
-      await chrome.storage.local.set({ sites: defaultSites });
-      console.log('Default site profiles imported.');
-    } else {
-      // Merge but keep user-defined/updated configurations
-      const localSites = sanitizeSitesForStorage(stored.sites).sites;
-      const mergedSites = { ...defaultSites, ...localSites };
-      delete mergedSites.nettruyen; // Remove old nettruyen config completely
-      await chrome.storage.local.set({ sites: mergedSites });
-      console.log('Site profiles merged and updated (nettruyen removed).');
-    }
-  } catch (error) {
-    console.error('Failed to initialize sites configuration:', error);
-    logBackgroundError('initialize_sites', error);
-  }
-}
-
-// Initialize default site profiles from sites.json
-chrome.runtime.onInstalled.addListener(async () => {
-  await initializeSites();
-
-  // Set default repo if not set
-  try {
-    const data = await chrome.storage.local.get('githubRepo');
-    if (!data.githubRepo) {
-      await chrome.storage.local.set({ githubRepo: 'seaflower205/manga-downloader' });
-    }
-  } catch (error) {
-    logBackgroundError('initialize_github_repo', error);
-  }
-});
-
-// Run immediately on service worker startup
-initializeSites();
 
 // Fetch latest sites.json from GitHub
 async function updateSitesFromGithub() {
@@ -111,79 +85,168 @@ async function updateSitesFromGithub() {
     const stored = await chrome.storage.local.get('sites');
     const localSites = sanitizeSitesForStorage(stored.sites || {}).sites;
     
-    // Merge: github profiles override local ones if they have the same key, but keep custom local-only keys
-    const mergedSites = { ...localSites, ...githubSites };
-    delete mergedSites.nettruyen; // Force delete nettruyen
+    // Merge: github profiles override local ones if they have the same key, but keep custom local-only keys (deep merge at site level)
+    const mergedSites = {};
+    for (const key in githubSites) {
+      mergedSites[key] = {
+        ...(localSites[key] || {}),
+        ...githubSites[key]
+      };
+    }
+    for (const key in localSites) {
+      if (!githubSites[key]) {
+        mergedSites[key] = localSites[key]; // Keep custom local-only sites
+      }
+    }
     await chrome.storage.local.set({ sites: mergedSites, lastSync: Date.now() });
     console.log('Successfully synced sites configuration from GitHub.');
+    await registerRefererBypassRules();
     
     // Notify popup if it is open
     chrome.runtime.sendMessage({ type: 'SYNC_COMPLETED', success: true, count: Object.keys(githubSites).length, skipped: githubResult.skipped.length }).catch(() => {});
     return { success: true, count: Object.keys(githubSites).length, skipped: githubResult.skipped.length };
   } catch (error) {
     console.error('Failed to sync from GitHub:', error);
-    logBackgroundError('github_sync', error);
+    Utils.logBackgroundError('github_sync', error);
     chrome.runtime.sendMessage({ type: 'SYNC_COMPLETED', success: false, error: error.message }).catch(() => {});
     return { success: false, error: error.message };
   }
 }
 
-// Periodic alarm listener removed for security (manual sync only)
+// Initialize default site profiles on install
+chrome.runtime.onInstalled.addListener(async () => {
+  await initializeSites();
+  await registerRefererBypassRules();
 
-// Helper to convert ArrayBuffer to Base64 safely (chunk-based for large buffers)
-function arrayBufferToBase64(buffer) {
-  const bytes = new Uint8Array(buffer);
-  const chunkSize = 8192;
-  let binary = '';
-  for (let offset = 0; offset < bytes.length; offset += chunkSize) {
-    const chunk = bytes.subarray(offset, Math.min(offset + chunkSize, bytes.length));
-    binary += String.fromCharCode.apply(null, chunk);
+  // Set default repo if not set
+  try {
+    const data = await chrome.storage.local.get('githubRepo');
+    if (!data.githubRepo) {
+      await chrome.storage.local.set({ githubRepo: 'seaflower205/manga-downloader' });
+    }
+  } catch (error) {
+    Utils.logBackgroundError('initialize_github_repo', error);
   }
-  return btoa(binary);
-}
+});
 
-// Bypasses referer restrictions and fetches the image as ArrayBuffer
-async function fetchImageWithReferer({ url, referer, index }) {
-  const urlObj = new URL(url);
-  const ruleId = getNextDnrRuleId(); // Unique rule ID per image fetch task
+// Run immediately on service worker startup
+initializeSites().then(() => {
+  registerRefererBypassRules();
+});
 
-  if (referer) {
-    const rule = {
+// Clean up polling if tab is closed by user
+chrome.tabs.onRemoved.addListener((tabId) => {
+  const activeTabs = self.activeVerificationTabs;
+  if (activeTabs && activeTabs.has(tabId)) {
+    const { siteKey, intervalId, timeoutId } = activeTabs.get(tabId);
+    clearInterval(intervalId);
+    clearTimeout(timeoutId);
+    activeTabs.delete(tabId);
+    console.log(`[TAB_POLLING]: Verification tab for ${siteKey} was closed by user.`);
+  }
+});
+
+// Register dynamic DNR rules to bypass image hotlinking protection for all configured sites
+async function registerRefererBypassRules() {
+  if (typeof chrome === 'undefined' || !chrome.declarativeNetRequest) return;
+  try {
+    const data = await chrome.storage.local.get('sites');
+    const activeSites = data.sites || {};
+    const rules = [];
+    let ruleId = 1000;
+
+    Object.keys(activeSites).forEach(key => {
+      const site = activeSites[key];
+      if (!site) return;
+
+      const referer = site.referer || `https://${key}.com/`;
+      const domains = [];
+      if (site.domainPattern) {
+        site.domainPattern.split('|').forEach(d => {
+          const cleanD = d.replace(/\\/g, '').trim();
+          if (cleanD) domains.push(cleanD);
+        });
+      } else {
+        try {
+          domains.push(new URL(referer).hostname);
+        } catch (_) {
+          domains.push(`${key}.com`);
+        }
+      }
+
+      domains.forEach(domain => {
+        ruleId++;
+        let origin = referer;
+        try {
+          origin = new URL(referer).origin;
+        } catch (_) {}
+
+        rules.push({
+          id: ruleId,
+          priority: 1,
+          action: {
+            type: 'modifyHeaders',
+            requestHeaders: [
+              { header: 'Referer', operation: 'set', value: referer },
+              { header: 'Origin', operation: 'set', value: origin }
+            ]
+          },
+          condition: {
+            urlFilter: domain,
+            resourceTypes: ['image']
+          }
+        });
+      });
+    });
+
+    // Add specific fallback rule for poke-black-and-white.net (Mangaball CDN)
+    ruleId++;
+    rules.push({
       id: ruleId,
       priority: 1,
       action: {
         type: 'modifyHeaders',
         requestHeaders: [
-          { header: 'Referer', operation: 'set', value: referer },
-          { header: 'Origin', operation: 'set', value: new URL(referer).origin },
-          { header: 'User-Agent', operation: 'set', value: navigator.userAgent }
+          { header: 'Referer', operation: 'set', value: 'https://mangaball.net/' },
+          { header: 'Origin', operation: 'set', value: 'https://mangaball.net' }
         ]
       },
       condition: {
-        regexFilter: `^${escapeDnrRegex(urlObj.origin + urlObj.pathname)}`,
-        resourceTypes: ['xmlhttprequest']
+        urlFilter: 'poke-black-and-white.net',
+        resourceTypes: ['image']
       }
-    };
-
-    await chrome.declarativeNetRequest.updateSessionRules({
-      removeRuleIds: [ruleId],
-      addRules: [rule]
     });
-  }
 
-  try {
-    const response = await fetch(url);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    assertSafeImageResponse(response);
-    const buffer = await response.arrayBuffer();
-    assertSafeImageResponse(response, buffer);
-    return buffer;
-  } finally {
-    if (referer) {
-      await chrome.declarativeNetRequest.updateSessionRules({
-        removeRuleIds: [ruleId]
-      });
-    }
+    // Add specific fallback rule for pstatic.net (Naver CDN)
+    ruleId++;
+    rules.push({
+      id: ruleId,
+      priority: 1,
+      action: {
+        type: 'modifyHeaders',
+        requestHeaders: [
+          { header: 'Referer', operation: 'set', value: 'https://comic.naver.com/' },
+          { header: 'Origin', operation: 'set', value: 'https://comic.naver.com' }
+        ]
+      },
+      condition: {
+        urlFilter: 'pstatic.net',
+        resourceTypes: ['image']
+      }
+    });
+
+    // Get all existing dynamic rules
+    const existingRules = await chrome.declarativeNetRequest.getDynamicRules();
+    const existingIds = existingRules.map(r => r.id);
+    
+    // Update dynamic rules: remove old ones, add new ones
+    await chrome.declarativeNetRequest.updateDynamicRules({
+      removeRuleIds: existingIds,
+      addRules: rules
+    });
+    console.log(`Registered ${rules.length} referer bypass rules for images.`);
+  } catch (err) {
+    console.error('Failed to register referer bypass rules:', err);
   }
 }
 
@@ -192,79 +255,6 @@ function validateFetchGroupPayload(data) {
   const urls = Security.normalizeUrlArray(data.urls, { max: 50 });
   const referer = Security.normalizeUrl(data.referer || '', { allowHttp: true });
   return { urls, referer };
-}
-
-function validateZipPayload(data) {
-  if (!data || typeof data !== 'object' || !Array.isArray(data.images)) {
-    return { valid: false, images: [], title: 'Manga', chapter: 'Chapter', error: 'Invalid ZIP payload.' };
-  }
-
-  const images = [];
-  let totalDataLength = 0;
-  data.images.slice(0, Security.DEFAULT_LIMITS.zipImages).forEach(img => {
-    if (!img || typeof img !== 'object') return;
-    const filename = Security.toSafeString(img.filename, 100);
-    const dataUrl = typeof img.dataUrl === 'string' ? img.dataUrl : '';
-    totalDataLength += dataUrl.length;
-    if (
-      totalDataLength <= Security.DEFAULT_LIMITS.totalZipDataUrl &&
-      Security.isSafeZipEntryName(filename) &&
-      Security.isSafeImageDataUrl(dataUrl)
-    ) {
-      images.push({ filename, dataUrl });
-    }
-  });
-
-  return {
-    valid: images.length > 0,
-    images,
-    title: Security.safeFilename(data.title, 'Manga'),
-    chapter: Security.safeFilename(data.chapter, 'Chapter'),
-    error: images.length > 0 ? '' : 'No valid images to package.'
-  };
-}
-
-function normalizeSearchResults(results) {
-  const output = [];
-  const seen = new Set();
-  results.forEach(item => {
-    if (output.length >= Security.DEFAULT_LIMITS.searchResults) return;
-    const normalized = Security.normalizeSearchResult(item);
-    if (!normalized || seen.has(normalized.url)) return;
-    seen.add(normalized.url);
-    output.push(normalized);
-  });
-  return output;
-}
-
-function normalizeTrustedHttpUrl(value, allowedHosts, baseUrl = '') {
-  const normalized = Security.normalizeUrl(value, {
-    baseUrl,
-    allowHttp: true,
-    allowProtocolRelative: true
-  });
-  if (!normalized) return '';
-
-  try {
-    const parsed = new URL(normalized);
-    const hostname = parsed.hostname.toLowerCase();
-    const trusted = allowedHosts.some(host => {
-      const allowed = Security.toSafeString(host, 120).toLowerCase();
-      return hostname === allowed || hostname.endsWith(`.${allowed}`);
-    });
-    return trusted ? parsed.href : '';
-  } catch (error) {
-    return '';
-  }
-}
-
-function isSafeMangaDexId(value) {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
-    .test(Security.toSafeString(value, 80));
-}
-
-function isSafeRemoteFilename(value) {
-  return /^[0-9A-Za-z._-]{1,180}$/.test(Security.toSafeString(value, 200));
 }
 
 // Main message listener
@@ -286,30 +276,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     
     const fetchPromises = urls.map(async (url, idx) => {
       try {
-        const buffer = await fetchImageWithReferer({ url, referer, index: idx });
-        const bytes = new Uint8Array(buffer);
-        
-        // Detect content type from magic numbers or default to image/jpeg
-        let contentType = 'image/jpeg';
-        if (bytes.length > 4) {
-          if (bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4E && bytes[3] === 0x47) {
-            contentType = 'image/png';
-          } else if (bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46) {
-            contentType = 'image/webp';
-          } else if (bytes[0] === 0x47 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x38) {
-            contentType = 'image/gif';
-          }
-        }
-        
-        const base64 = arrayBufferToBase64(buffer);
+        const dataUrl = await Network.fetchImageWithReferer({ url, referer });
         return {
           url,
           success: true,
-          dataUrl: `data:${contentType};base64,${base64}`
+          dataUrl
         };
       } catch (err) {
         console.error(`Failed fetching image ${url}:`, err);
-        logBackgroundError('fetch_image', err, { url: Security.sanitizeUrlForReport(url), index: idx });
+        Utils.logBackgroundError('fetch_image', err, { url: Security.sanitizeUrlForReport(url), index: idx });
         return { url, success: false, error: err.message };
       }
     });
@@ -321,49 +296,24 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true; // Keep message channel open for async response
   }
 
-  // 2. Build ZIP from pre-merged data URLs and trigger download
-  if (message.type === 'SAVE_ZIP_DOWNLOAD') {
-    const payload = validateZipPayload(message.data);
-    if (!payload.valid) {
-      Security.logDiagnostic({ feature: 'save_zip_validation', error: payload.error }).catch(() => {});
-      sendResponse({ success: false, error: payload.error });
-      return false;
-    }
-
-    const { images, title, chapter } = payload;
-    const zip = new JSZip();
-
-    images.forEach(img => {
-      // Decode base64 dataUrl
-      const base64Data = img.dataUrl.split(',')[1];
-      // Convert base64 back to binary data for JSZip
-      zip.file(img.filename, base64Data, { base64: true });
+  // 2. Download generated ZIP from blob URL created in content script
+  if (message.type === 'DOWNLOAD_BLOB_URL') {
+    const { url, filename } = message.data;
+    chrome.downloads.download({
+      url: url,
+      filename: filename,
+      conflictAction: 'uniquify',
+      saveAs: false
+    }, (downloadId) => {
+      const err = chrome.runtime.lastError;
+      if (err) {
+        console.error('Error triggering download:', err);
+        sendResponse({ success: false, error: err.message });
+      } else {
+        sendResponse({ success: true });
+      }
     });
-
-    // Generate ZIP and trigger Chrome download
-    zip.generateAsync({ type: 'blob' }).then(async (zipBlob) => {
-      const buffer = await zipBlob.arrayBuffer();
-      const base64 = arrayBufferToBase64(buffer);
-      const dataUrl = `data:application/zip;base64,${base64}`;
-
-      const safeTitle = Security.safeFilename(title, 'Manga');
-      const safeChapter = Security.safeFilename(chapter, 'Chapter');
-
-      await chrome.downloads.download({
-        url: dataUrl,
-        filename: `${safeTitle} - ${safeChapter}.zip`,
-        conflictAction: 'uniquify',
-        saveAs: false
-      });
-
-      sendResponse({ success: true });
-    }).catch(err => {
-      console.error('Error generating zip:', err);
-      logBackgroundError('save_zip_download', err, { imageCount: images.length });
-      sendResponse({ success: false, error: err.message });
-    });
-
-    return true;
+    return true; // Keep message channel open for async response
   }
 
   // 3. Trigger manual GitHub sync
@@ -404,197 +354,125 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   // 5. Search manga across registered websites
   if (message.type === 'SEARCH_MANGA') {
     const query = Security.toSafeString(message.data && message.data.query, 100);
+    const searchId = Security.toSafeString(message.data && message.data.searchId, 40);
+    const targetSites = Array.isArray(message.data && message.data.targetSites)
+      ? message.data.targetSites.map(s => Security.toSafeString(s, 64))
+      : null;
+    const isNsfw = Boolean(message.data && message.data.isNsfw);
     if (!query) {
-      sendResponse({ success: true, results: [] });
+      sendResponse({ success: true });
       return false;
     }
-    searchManga(query).then(results => {
-      sendResponse({ success: true, results: normalizeSearchResults(results) });
+    
+    // Reset/initialize cached search state
+    const isNewQuery = self.currentSearchState.query !== query;
+    if (isNewQuery) {
+      self.currentSearchState = {
+        query: query,
+        searchId: isNsfw ? '' : searchId,
+        nsfwSearchId: isNsfw ? searchId : '',
+        results: [],
+        blockedSites: {},
+        finishedDefault: false,
+        finishedNsfw: false,
+        activeSites: {},
+        nsfwActive: false,
+        targetSites: targetSites,
+        timestamp: Date.now()
+      };
+    } else {
+      if (isNsfw) {
+        self.currentSearchState.nsfwSearchId = searchId;
+        self.currentSearchState.finishedNsfw = false;
+      } else {
+        self.currentSearchState.searchId = searchId;
+        self.currentSearchState.finishedDefault = false;
+      }
+      self.currentSearchState.timestamp = Date.now();
+    }
+    chrome.storage.local.set({ currentSearchState: self.currentSearchState }).catch(() => {});
+
+    chrome.storage.local.get(['sites', 'nsfwActive']).then(data => {
+      const activeSites = data.sites || {};
+      const nsfwActive = Boolean(data.nsfwActive);
+      Providers.streamSearchManga(query, searchId, activeSites, nsfwActive, targetSites);
     }).catch(err => {
-      logBackgroundError('search_manga', err);
+      Utils.logBackgroundError('search_manga_storage', err);
+    });
+
+    sendResponse({ success: true });
+    return false;
+  }
+
+  // 6. Fetch HTML content with DNR rules bypass referer restrictions
+  if (message.type === 'FETCH_HTML') {
+    const url = Security.normalizeUrl(message.data && message.data.url, { allowHttp: true });
+    const referer = Security.normalizeUrl(message.data && message.data.referer || '', { allowHttp: true });
+    if (!url) {
+      sendResponse({ success: false, error: 'URL không hợp lệ.' });
+      return false;
+    }
+    Network.fetchHtmlWithFallback({ url, referer }).then(html => {
+      sendResponse({ success: true, html });
+    }).catch(err => {
       sendResponse({ success: false, error: err.message });
     });
     return true; // Keep channel open for async response
   }
+
+  // 7. Add custom site search results to background cache
+  if (message.type === 'ADD_CUSTOM_SEARCH_RESULTS') {
+    const searchId = Security.toSafeString(message.data && message.data.searchId, 40);
+    const results = Array.isArray(message.data && message.data.results) ? message.data.results : [];
+    if (searchId === self.currentSearchState.searchId || searchId === self.currentSearchState.nsfwSearchId) {
+      const existingUrls = new Set(self.currentSearchState.results.map(r => r.url));
+      const uniqueNew = results.filter(r => !existingUrls.has(r.url));
+      if (uniqueNew.length > 0) {
+        self.currentSearchState.results = self.currentSearchState.results.concat(uniqueNew);
+        chrome.storage.local.set({ currentSearchState: self.currentSearchState }).catch(() => {});
+      }
+    }
+    sendResponse({ success: true });
+    return false;
+  }
+
+  // 8. Add custom site Cloudflare blocked warnings to background cache
+  if (message.type === 'ADD_CUSTOM_CLOUDFLARE_BLOCKED') {
+    const searchId = Security.toSafeString(message.data && message.data.searchId, 40);
+    const siteKey = Security.toSafeString(message.data && message.data.siteKey, 64);
+    const sourceName = Security.toSafeString(message.data && message.data.sourceName, 100);
+    const url = Security.normalizeUrl(message.data && message.data.url, { allowHttp: true });
+    if (searchId === self.currentSearchState.searchId || searchId === self.currentSearchState.nsfwSearchId) {
+      self.currentSearchState.blockedSites[siteKey] = {
+        sourceName,
+        url,
+        isNsfw: searchId === self.currentSearchState.nsfwSearchId
+      };
+      chrome.storage.local.set({ currentSearchState: self.currentSearchState }).catch(() => {});
+    }
+    sendResponse({ success: true });
+    return false;
+  }
+
+  // 9. Start polling/tracking a tab opened for Cloudflare verification
+  if (message.type === 'START_TAB_VERIFICATION') {
+    const siteKey = Security.toSafeString(message.data && message.data.siteKey, 64);
+    const url = Security.normalizeUrl(message.data && message.data.url, { allowHttp: true });
+    const tabId = Number(message.data && message.data.tabId);
+    if (siteKey && url && tabId) {
+      Providers.startTabPolling(tabId, siteKey, url);
+    }
+    sendResponse({ success: true });
+    return false;
+  }
+
+  // 10. Re-initialize and merge default site configurations
+  if (message.type === 'INITIALIZE_SITES') {
+    initializeSites().then(() => {
+      sendResponse({ success: true });
+    }).catch(err => {
+      sendResponse({ success: false, error: err.message });
+    });
+    return true; // Keep channel open
+  }
 });
-
-// Helper function to search manga across websites in the background
-async function searchManga(query) {
-  const results = [];
-  
-  // 1. Search on MangaBall
-  try {
-    // Fetch homepage to get CSRF token and session cookies
-    const homeRes = await fetch('https://mangaball.net/', {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-      }
-    });
-    const html = await homeRes.text();
-    const csrfMatch = html.match(/csrf-token["']\s*content=["']([^"']+)["']/i);
-    const cookies = homeRes.headers.get('set-cookie');
-    const cookieHeader = cookies ? cookies.split(',').map(c => c.split(';')[0].trim()).join('; ') : '';
-    
-    if (csrfMatch) {
-      const csrfToken = csrfMatch[1];
-      const searchRes = await fetch('https://mangaball.net/api/v1/smart-search/search/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-          'X-CSRF-TOKEN': csrfToken,
-          'Cookie': cookieHeader
-        },
-        body: 'search_input=' + encodeURIComponent(query)
-      });
-      const searchJson = await searchRes.json();
-      if (searchJson && searchJson.code === 200 && searchJson.data && searchJson.data.manga) {
-        searchJson.data.manga.forEach(m => {
-          const rawTitle = Security.toSafeString(m.title, 200);
-          const thumbnail = normalizeTrustedHttpUrl(m.img, ['mangaball.net'], 'https://mangaball.net/');
-          const url = normalizeTrustedHttpUrl(m.url, ['mangaball.net'], 'https://mangaball.net/');
-          if (!url) return;
-          results.push({
-            title: rawTitle.split('(')[0].trim(), // Clean alternative titles
-            author: m.displayAuthor || 'Nhiều tác giả',
-            thumbnail,
-            url,
-            source: 'MangaBall',
-            sourceKey: 'mangaball'
-          });
-        });
-      }
-    }
-  } catch (err) {
-    console.error('Error searching MangaBall:', err);
-    logBackgroundError('search_mangaball', err);
-  }
-
-  // 2. Search on Naver Webtoon
-  try {
-    const naverRes = await fetch('https://comic.naver.com/api/search/all?keyword=' + encodeURIComponent(query), {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Referer': 'https://comic.naver.com/'
-      }
-    });
-    const naverJson = await naverRes.json();
-    
-    const parseNaverList = (list) => {
-      if (!list) return;
-      list.forEach(item => {
-        const titleId = Security.toSafeString(item.titleId, 40).replace(/[^\d]/g, '');
-        if (!titleId) return;
-        let listUrl = 'https://comic.naver.com/webtoon/list?titleId=' + encodeURIComponent(titleId);
-        if (item.webtoonLevelCode === 'BEST_CHALLENGE') {
-          listUrl = 'https://comic.naver.com/bestChallenge/list?titleId=' + encodeURIComponent(titleId);
-        } else if (item.webtoonLevelCode === 'CHALLENGE') {
-          listUrl = 'https://comic.naver.com/challenge/list?titleId=' + encodeURIComponent(titleId);
-        }
-        results.push({
-          title: item.titleName,
-          author: item.displayAuthor || 'Nhiều tác giả',
-          thumbnail: normalizeTrustedHttpUrl(item.thumbnailUrl, ['naver.com', 'pstatic.net']),
-          url: listUrl,
-          source: 'Naver Webtoon',
-          sourceKey: 'naverwebtoon'
-        });
-      });
-    };
-    
-    if (naverJson) {
-      if (naverJson.searchWebtoonResult && naverJson.searchWebtoonResult.searchViewList) {
-        parseNaverList(naverJson.searchWebtoonResult.searchViewList);
-      }
-      if (naverJson.searchBestChallengeResult && naverJson.searchBestChallengeResult.searchViewList) {
-        parseNaverList(naverJson.searchBestChallengeResult.searchViewList);
-      }
-      if (naverJson.searchChallengeResult && naverJson.searchChallengeResult.searchViewList) {
-        parseNaverList(naverJson.searchChallengeResult.searchViewList);
-      }
-    }
-  } catch (err) {
-    console.error('Error searching Naver Webtoon:', err);
-    logBackgroundError('search_naverwebtoon', err);
-  }
-  
-  // 3. Search on MangaDex
-  try {
-    const dexRes = await fetch('https://api.mangadex.org/manga?title=' + encodeURIComponent(query) + '&limit=10&includes[]=cover_art', {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-      }
-    });
-    const dexJson = await dexRes.json();
-    if (dexJson && dexJson.data) {
-      dexJson.data.forEach(m => {
-        if (!isSafeMangaDexId(m.id)) return;
-        const titleMap = m.attributes && m.attributes.title ? m.attributes.title : {};
-        const title = titleMap.en || titleMap.ja || titleMap['ja-ro'] || Object.values(titleMap)[0] || 'MangaDex Title';
-        
-        // Find cover filename
-        const coverRel = Array.isArray(m.relationships) ? m.relationships.find(r => r.type === 'cover_art') : null;
-        const coverFile = coverRel && coverRel.attributes ? coverRel.attributes.fileName : '';
-        const thumbnail = isSafeRemoteFilename(coverFile) ? `https://uploads.mangadex.org/covers/${m.id}/${coverFile}.256.jpg` : 'https://mangadex.org/avatar.png';
-        
-        results.push({
-          title: title.trim(),
-          author: 'Nhiều tác giả',
-          thumbnail,
-          url: `https://mangadex.org/title/${m.id}`,
-          source: 'MangaDex',
-          sourceKey: 'mangadex'
-        });
-      });
-    }
-  } catch (err) {
-    console.error('Error searching MangaDex:', err);
-    logBackgroundError('search_mangadex', err);
-  }
-  
-  // 4. Search on MangaPlaza
-  try {
-    const plazaRes = await fetch('https://mangaplaza.com/searchresult/?fre=' + encodeURIComponent(query), {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-      }
-    });
-    const html = await plazaRes.text();
-    const listIndex = html.indexOf('class="listBox"');
-    if (listIndex !== -1) {
-      const listHtml = html.substring(listIndex);
-      const liRegex = /<li>([\s\S]*?)<\/li>/gi;
-      let match;
-      while ((match = liRegex.exec(listHtml)) !== null && results.length < 40) {
-        const liContent = match[1];
-        
-        const titleMatch = liContent.match(/class="titleName"[\s\S]*?<a href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/i);
-        if (!titleMatch) continue;
-        const href = titleMatch[1];
-        const title = titleMatch[2].replace(/<[^>]+>/g, '').trim();
-        const url = normalizeTrustedHttpUrl(href, ['mangaplaza.com'], 'https://mangaplaza.com/');
-        if (!url) continue;
-        
-        const imgMatch = liContent.match(/class="thumBlock"[\s\S]*?<img src="([^"]+)"/i);
-        const thumbnail = imgMatch ? normalizeTrustedHttpUrl(imgMatch[1], ['mangaplaza.com'], 'https://mangaplaza.com/') : '';
-        
-        const authorMatch = liContent.match(/class="authorName"[\s\S]*?<a[^>]*>([\s\S]*?)<\/a>/i);
-        const author = authorMatch ? authorMatch[1].replace(/<[^>]+>/g, '').trim() : 'Nhiều tác giả';
-        
-        results.push({
-          title,
-          author,
-          thumbnail,
-          url,
-          source: 'MangaPlaza',
-          sourceKey: 'mangaplaza'
-        });
-      }
-    }
-  } catch (err) {
-    console.error('Error searching MangaPlaza:', err);
-    logBackgroundError('search_mangaplaza', err);
-  }
-  
-  return results;
-}

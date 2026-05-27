@@ -1,12 +1,15 @@
 {
   "manifest_version": 3,
-  "name": "Manga Downloader Premium",
+  "name": "Manga Downloader",
   "version": "1.0.0",
-  "description": "Tiện ích tải ảnh truyện tranh cao cấp, hỗ trợ tự động nhận diện và tải ảnh từ nhiều nguồn.",
+  "description": "Tiện ích hỗ trợ tải ảnh từ các trang đọc truyện tranh, tự động nhận diện cấu trúc trang và cho phép tùy chỉnh linh hoạt.",
   "permissions": [
     "storage",
     "downloads",
-    "declarativeNetRequest"
+    "declarativeNetRequest",
+    "offscreen",
+    "cookies",
+    "scripting"
   ],
   "host_permissions": [
     "<all_urls>"
@@ -30,7 +33,15 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["utils/security.js", "content/content.js"],
+      "css": ["content/content.css"],
+      "js": [
+        "utils/jszip.min.js",
+        "utils/security.js",
+        "content/detector.js",
+        "content/downloader.js",
+        "content/ui.js",
+        "content/content.js"
+      ],
       "run_at": "document_end"
     },
     {
@@ -38,6 +49,12 @@
       "js": ["content/grabber.js"],
       "run_at": "document_start",
       "world": "MAIN"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content/iframe_bridge.js"],
+      "all_frames": true,
+      "run_at": "document_end"
     }
   ]
 }

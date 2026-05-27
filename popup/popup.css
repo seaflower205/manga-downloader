@@ -7,6 +7,9 @@
   --color-danger: #EF4444;      /* Rose Red */
   --color-warning: #F59E0B;     /* Amber Orange */
   
+  --text-on-primary: #ffffff;
+  --text-on-secondary: #ffffff;
+  
   --bg-main: radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.12) 0%, rgba(8, 8, 12, 0.98) 100%);
   --bg-card: rgba(255, 255, 255, 0.03);
   --bg-card-hover: rgba(255, 255, 255, 0.06);
@@ -60,6 +63,7 @@ body {
   min-height: 480px;
   background: var(--bg-main);
   border: 1px solid var(--border-glass);
+  position: relative;
 }
 
 /* Header */
@@ -185,6 +189,21 @@ body {
 @keyframes tabFadeIn {
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes cardSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.site-card, .search-result-card {
+  animation: cardSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 h2 {
@@ -510,7 +529,7 @@ body.light-theme .site-card.pinned {
   flex: 1;
   padding: 11px;
   background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
-  color: #ffffff;
+  color: var(--text-on-primary);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--radius-control);
   font-weight: 600;
@@ -529,7 +548,7 @@ body.light-theme .site-card.pinned {
 .btn-search-submit {
   padding: 9.5px 16px;
   background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
-  color: #ffffff !important;
+  color: var(--text-on-primary) !important;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 99px;
   font-weight: 600;
@@ -588,23 +607,72 @@ body.light-theme .btn-search-submit:hover {
   font-weight: 500;
 }
 
+#status-notification-area {
+  position: absolute;
+  top: 72px;
+  left: 20px;
+  right: 20px;
+  z-index: 1000;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
 /* Status Alerts */
 .status-alert {
-  padding: 12px 14px;
+  pointer-events: auto;
+  padding: 10px 16px;
   border-radius: var(--radius-card);
-  font-size: 11.5px;
-  line-height: 1.45;
-  margin-bottom: 14px;
+  font-size: 12px;
+  line-height: 1.4;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 10px;
-  backdrop-filter: blur(8px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+  width: max-content;
+  max-width: 100%;
+  box-sizing: border-box;
+  animation: notifySlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
+              transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
+              max-height 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
+              padding 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
+              margin 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+  max-height: 180px;
+}
+
+@keyframes notifySlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.status-alert.fade-out {
+  opacity: 0 !important;
+  transform: translateY(-8px) scale(0.95) !important;
+  max-height: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  border-color: transparent !important;
 }
 
 .status-alert .alert-svg {
   flex-shrink: 0;
-  margin-top: 2px;
 }
 
 .status-alert .alert-content {
@@ -615,21 +683,21 @@ body.light-theme .btn-search-submit:hover {
 }
 
 .status-alert.success {
-  background: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.25);
-  color: #a7f3d0;
+  background: rgba(16, 185, 129, 0.9);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #ffffff;
 }
 
 .status-alert.warning {
-  background: rgba(245, 158, 11, 0.1);
-  border: 1px solid rgba(245, 158, 11, 0.25);
-  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.9);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: #ffffff;
 }
 
 .status-alert.error {
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.25);
-  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.95);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #ffffff;
 }
 
 .status-alert-btn {
@@ -795,6 +863,127 @@ body.light-theme .btn-search-submit:hover {
   border-color: rgba(249, 115, 22, 0.3);
 }
 
+.search-result-source.mangadex {
+  background: rgba(236, 72, 153, 0.15);
+  color: #fbcfe8;
+  border-color: rgba(236, 72, 153, 0.3);
+}
+
+.search-result-source.mangakatana {
+  background: rgba(16, 185, 129, 0.15);
+  color: #a7f3d0;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.search-result-source.urimana {
+  background: rgba(139, 92, 246, 0.15);
+  color: #ddd6fe;
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+.search-result-source.theblank {
+  background: rgba(244, 63, 94, 0.15);
+  color: #fecdd3;
+  border-color: rgba(244, 63, 94, 0.3);
+}
+
+.search-result-source.twmanga {
+  background: rgba(14, 165, 233, 0.15);
+  color: #bae6fd;
+  border-color: rgba(14, 165, 233, 0.3);
+}
+
+.search-result-source.naverwebtoon {
+  background: rgba(34, 197, 94, 0.15);
+  color: #bbf7d0;
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.search-result-source.mangaplaza {
+  background: rgba(234, 179, 8, 0.15);
+  color: #fef08a;
+  border-color: rgba(234, 179, 8, 0.3);
+}
+
+/* Supported sources list in search tab */
+.search-supported-sources-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin-top: 8px;
+  padding: 0 4px;
+}
+
+.search-source-badge {
+  font-size: 8px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  user-select: none;
+}
+
+.search-source-badge:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.search-source-badge.deselected {
+  opacity: 0.35 !important;
+  text-decoration: line-through;
+  background: rgba(255, 255, 255, 0.02) !important;
+  border-color: rgba(255, 255, 255, 0.05) !important;
+  color: var(--text-muted) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.search-source-badge.deselected:hover {
+  opacity: 0.65 !important;
+  text-decoration: line-through;
+  transform: none;
+}
+
+#nsfw-search-input {
+  flex: 1;
+  padding: 9.5px 12px 9.5px 36px;
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-glass);
+  border-radius: 99px;
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  font-size: 12.5px;
+  transition: var(--transition-smooth);
+}
+
+#nsfw-search-input:focus {
+  outline: none;
+  border-color: #f43f5e;
+  box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.15);
+  background-color: rgba(244, 63, 94, 0.05);
+}
+
+.nsfw-spinner {
+  border-top-color: #f43f5e !important;
+}
+
+.search-source-badge.sm-mangadex { color: #fbcfe8; border-color: rgba(236, 72, 153, 0.25); background: rgba(236, 72, 153, 0.08); }
+.search-source-badge.sm-mangakatana { color: #a7f3d0; border-color: rgba(16, 185, 129, 0.25); background: rgba(16, 185, 129, 0.08); }
+.search-source-badge.sm-urimana { color: #ddd6fe; border-color: rgba(139, 92, 246, 0.25); background: rgba(139, 92, 246, 0.08); }
+.search-source-badge.sm-theblank { color: #fecdd3; border-color: rgba(244, 63, 94, 0.25); background: rgba(244, 63, 94, 0.08); }
+.search-source-badge.sm-twmanga { color: #bae6fd; border-color: rgba(14, 165, 233, 0.25); background: rgba(14, 165, 233, 0.08); }
+.search-source-badge.sm-mangaball { color: #fed7aa; border-color: rgba(249, 115, 22, 0.25); background: rgba(249, 115, 22, 0.08); }
+.search-source-badge.sm-naverwebtoon { color: #bbf7d0; border-color: rgba(34, 197, 94, 0.25); background: rgba(34, 197, 94, 0.08); }
+.search-source-badge.sm-mangaplaza { color: #fef08a; border-color: rgba(234, 179, 8, 0.25); background: rgba(234, 179, 8, 0.08); }
+
 /* Diagnostics */
 .diagnostics-grid {
   display: grid;
@@ -939,28 +1128,31 @@ body.light-theme .btn-search-submit:hover {
   fill: none;
 }
 
-/* High-end Light Glassmorphism Theme (UI/UX Pro Max) */
+/* High-end Soft Light Glassmorphism Theme (UI/UX Pro Max) */
 body.light-theme {
-  --bg-main: radial-gradient(circle at 50% 0%, rgba(79, 70, 229, 0.05) 0%, #f8fafc 100%);
+  --bg-main: radial-gradient(circle at 50% 0%, hsl(220, 25%, 97%) 0%, hsl(220, 15%, 92%) 100%);
   --bg-card: #ffffff;
-  --bg-card-hover: #ffffff;
-  --bg-input: #ffffff;
+  --bg-card-hover: #f8fafc;
+  --bg-input: #f1f5f9;
   --bg-input-focus: #ffffff;
   
-  --border-glass: #e2e8f0;
-  --border-glass-hover: #cbd5e1;
+  --border-glass: rgba(15, 23, 42, 0.08);
+  --border-glass-hover: rgba(15, 23, 42, 0.16);
   --border-focus: #4f46e5;
   
   --text-primary: #0f172a;      /* Slate 900 */
-  --text-secondary: #334155;    /* Slate 700 */
+  --text-secondary: #475569;    /* Slate 600 */
   --text-muted: #64748b;        /* Slate 500 */
   
-  --bg-header: #ffffff;
-  --bg-footer: #f8fafc;
-  --bg-tabs: #f1f5f9;
+  --bg-header: rgba(255, 255, 255, 0.85);
+  --bg-footer: rgba(248, 250, 252, 0.85);
+  --bg-tabs: #e2e8f0;
   --text-logo-grad: linear-gradient(135deg, #0f172a 30%, #334155 100%);
   
-  background-color: #f8fafc;
+  --text-on-primary: #ffffff;
+  --text-on-secondary: #ffffff;
+  
+  background-color: #f1f5f9;
 }
 
 /* Specific Element Overrides for Light Mode */
@@ -1069,21 +1261,21 @@ body.light-theme .search-results-grid::-webkit-scrollbar-thumb {
 }
 
 body.light-theme .status-alert.success {
-  background: rgba(16, 185, 129, 0.08);
-  border-color: rgba(16, 185, 129, 0.2);
-  color: #065f46;
+  background: rgba(16, 185, 129, 0.95);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #ffffff;
 }
 
 body.light-theme .status-alert.warning {
-  background: rgba(245, 158, 11, 0.08);
-  border-color: rgba(245, 158, 11, 0.2);
-  color: #92400e;
+  background: rgba(245, 158, 11, 0.95);
+  border-color: rgba(245, 158, 11, 0.3);
+  color: #ffffff;
 }
 
 body.light-theme .status-alert.error {
-  background: rgba(239, 68, 68, 0.08);
-  border-color: rgba(239, 68, 68, 0.2);
-  color: #991b1b;
+  background: rgba(239, 68, 68, 0.95);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #ffffff;
 }
 
 body.light-theme .search-result-source {
@@ -1097,6 +1289,69 @@ body.light-theme .search-result-source.mangaball {
   color: #c2410c;
   border-color: rgba(249, 115, 22, 0.25);
 }
+body.light-theme .search-result-source.mangadex {
+  background: rgba(236, 72, 153, 0.08);
+  color: #be185d;
+  border-color: rgba(236, 72, 153, 0.25);
+}
+body.light-theme .search-result-source.mangakatana {
+  background: rgba(16, 185, 129, 0.08);
+  color: #047857;
+  border-color: rgba(16, 185, 129, 0.25);
+}
+body.light-theme .search-result-source.urimana {
+  background: rgba(139, 92, 246, 0.08);
+  color: #6d28d9;
+  border-color: rgba(139, 92, 246, 0.25);
+}
+body.light-theme .search-result-source.theblank {
+  background: rgba(244, 63, 94, 0.08);
+  color: #be123c;
+  border-color: rgba(244, 63, 94, 0.25);
+}
+body.light-theme .search-result-source.twmanga {
+  background: rgba(14, 165, 233, 0.08);
+  color: #0369a1;
+  border-color: rgba(14, 165, 233, 0.25);
+}
+body.light-theme .search-result-source.naverwebtoon {
+  background: rgba(34, 197, 94, 0.08);
+  color: #15803d;
+  border-color: rgba(34, 197, 94, 0.25);
+}
+body.light-theme .search-result-source.mangaplaza {
+  background: rgba(234, 179, 8, 0.08);
+  color: #854d0e;
+  border-color: rgba(234, 179, 8, 0.25);
+}
+
+/* Light Theme Search Badge Overrides */
+body.light-theme .search-source-badge {
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: var(--text-secondary);
+}
+
+body.light-theme .search-source-badge:hover {
+  background: rgba(0, 0, 0, 0.08);
+  color: var(--text-primary);
+}
+
+body.light-theme .search-source-badge.deselected {
+  background: rgba(0, 0, 0, 0.02) !important;
+  border-color: rgba(0, 0, 0, 0.04) !important;
+  color: var(--text-muted) !important;
+}
+
+body.light-theme .search-source-badge.sm-mangadex { color: #db2777; border-color: rgba(236, 72, 153, 0.3); background: rgba(236, 72, 153, 0.06); }
+body.light-theme .search-source-badge.sm-mangakatana { color: #059669; border-color: rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.06); }
+body.light-theme .search-source-badge.sm-urimana { color: #7c3aed; border-color: rgba(139, 92, 246, 0.3); background: rgba(139, 92, 246, 0.06); }
+body.light-theme .search-source-badge.sm-theblank { color: #e11d48; border-color: rgba(244, 63, 94, 0.3); background: rgba(244, 63, 94, 0.06); }
+body.light-theme .search-source-badge.sm-twmanga { color: #0284c7; border-color: rgba(14, 165, 233, 0.3); background: rgba(14, 165, 233, 0.06); }
+body.light-theme .search-source-badge.sm-mangaball { color: #ea580c; border-color: rgba(249, 115, 22, 0.3); background: rgba(249, 115, 22, 0.06); }
+body.light-theme .search-source-badge.sm-naverwebtoon { color: #16a34a; border-color: rgba(34, 197, 94, 0.3); background: rgba(34, 197, 94, 0.06); }
+body.light-theme .search-source-badge.sm-mangaplaza { color: #ca8a04; border-color: rgba(234, 179, 8, 0.3); background: rgba(234, 179, 8, 0.06); }
+
 
 body.light-theme .btn-diagnostic {
   background: #ffffff;
@@ -1134,3 +1389,209 @@ body.grayscale-theme .btn-theme-toggle {
   color: var(--text-primary);
   border-color: rgba(255, 255, 255, 0.2);
 }
+
+/* Hentai / NSFW Mode Active Styles */
+body.nsfw-mode-active {
+  --color-primary: #f43f5e;     /* Rose Red/Hot Pink */
+  --color-secondary: #e11d48;   /* Deep Rose */
+  --bg-main: radial-gradient(circle at 50% 0%, rgba(244, 63, 94, 0.15) 0%, rgba(8, 8, 12, 0.99) 100%);
+  --border-focus: rgba(244, 63, 94, 0.4);
+}
+
+body.nsfw-mode-active .logo-area h1 {
+  background: linear-gradient(135deg, #ff64b4 0%, #f43f5e 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+body.nsfw-mode-active .tab-btn.active {
+  background: rgba(244, 63, 94, 0.08);
+  border: 1px solid rgba(244, 63, 94, 0.2);
+  box-shadow: 0 4px 12px -3px rgba(244, 63, 94, 0.12);
+}
+
+body.nsfw-mode-active .tab-btn.active svg {
+  stroke: var(--color-primary);
+  filter: drop-shadow(0 0 3px rgba(244, 63, 94, 0.4));
+}
+
+body.nsfw-mode-active .app-logo-img {
+  filter: drop-shadow(0 0 8px rgba(244, 63, 94, 0.45));
+}
+
+/* Custom search config details */
+.search-details {
+  border: 1px dashed var(--border-glass);
+  border-radius: var(--radius-control);
+  background: rgba(255, 255, 255, 0.015);
+  margin-top: 5px;
+  overflow: hidden;
+  transition: var(--transition-smooth);
+}
+
+.search-details[open] {
+  border-style: solid;
+  border-color: rgba(59, 130, 246, 0.3);
+  background: rgba(255, 255, 255, 0.035);
+}
+
+body.nsfw-mode-active .search-details[open] {
+  border-color: rgba(244, 63, 94, 0.3);
+}
+
+.search-summary {
+  padding: 10px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: var(--transition-smooth);
+}
+
+.search-summary::-webkit-details-marker {
+  display: none;
+}
+
+.search-summary::after {
+  content: '▼';
+  font-size: 8px;
+  color: var(--text-secondary);
+  transition: transform 0.2s ease;
+}
+
+.search-details[open] .search-summary::after {
+  transform: rotate(180deg);
+}
+
+.search-details-content {
+  padding: 0 12px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Cloudflare blocked search result card */
+.search-result-card.cloudflare-blocked {
+  background: rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.25);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.05);
+}
+
+.search-result-card.cloudflare-blocked:hover {
+  background-color: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+body.light-theme .search-result-card.cloudflare-blocked {
+  background: rgba(245, 158, 11, 0.05);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+body.light-theme .search-result-card.cloudflare-blocked:hover {
+  background-color: rgba(245, 158, 11, 0.09);
+  border-color: rgba(245, 158, 11, 0.45);
+}
+
+.btn-cloudflare-verify {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-control);
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.25);
+  margin-left: auto;
+  flex-shrink: 0;
+  outline: none;
+}
+
+.btn-cloudflare-verify:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(245, 158, 11, 0.4);
+  filter: brightness(1.1);
+}
+
+.btn-cloudflare-verify:active {
+  transform: translateY(0);
+}
+
+/* Custom Theme Textarea */
+.theme-customize-textarea {
+  width: 100%;
+  height: 54px;
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-control);
+  color: var(--text-primary);
+  font-family: monospace;
+  font-size: 10.5px;
+  padding: 8px 10px;
+  box-sizing: border-box;
+  resize: none;
+  outline: none;
+  transition: var(--transition-smooth);
+}
+
+.theme-customize-textarea:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  background-color: var(--bg-input-focus);
+}
+
+/* Premium Click & Hover Micro-interactions (UX/UI Pro Max) */
+.btn-submit, 
+.btn-action-small, 
+.btn-search-submit, 
+.btn-cloudflare-verify, 
+.btn-diagnostic,
+.tab-btn {
+  transition: transform 0.12s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, color 0.15s ease;
+}
+
+.btn-submit:active, 
+.btn-action-small:active, 
+.btn-search-submit:active, 
+.btn-cloudflare-verify:active, 
+.btn-diagnostic:active,
+.tab-btn:active {
+  transform: scale(0.96) !important;
+}
+
+.btn-submit:hover, 
+.btn-search-submit:hover {
+  transform: translateY(-1.5px) scale(1.01);
+}
+
+.btn-action-small:hover,
+.btn-diagnostic:hover {
+  transform: translateY(-1px);
+}
+
+.theme-preset-btn {
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.theme-preset-btn:hover {
+  transform: scale(1.22);
+  border-color: #ffffff !important;
+  box-shadow: 0 0 14px rgba(255, 255, 255, 0.45) !important;
+}
+
+.theme-preset-btn:active {
+  transform: scale(0.92);
+}
+
+
+
