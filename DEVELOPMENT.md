@@ -32,7 +32,7 @@ Mọi dữ liệu lấy từ website bên ngoài, API từ xa, cấu hình của
 
 ## 2. Quy trình Cấu hình Trang Web mới (Viewer Analysis)
 
-Để thêm cấu hình (site profile) cho một trang đọc truyện mới vào cơ sở dữ liệu [sites.json](file:///c:/Users/Sea%20Flower/Pictures/manga%20downloader/config/sites.json), thực hiện theo các bước sau:
+Để thêm cấu hình (site profile) cho một trang đọc truyện mới vào cơ sở dữ liệu [default_sites.js](file:///c:/Users/Sea%20Flower/Pictures/manga%20downloader/utils/default_sites.js), thực hiện theo các bước sau:
 
 ### Bước 1: Khảo sát cấu trúc trang
 Mở trang đọc chương truyện trên trình duyệt và sử dụng DevTools để tìm các CSS Selector:
@@ -45,8 +45,8 @@ Mở trang đọc chương truyện trên trình duyệt và sử dụng DevTool
 * **Canvas Reader**: Nếu trang web vẽ ảnh lên thẻ `<canvas>` để chống tải, cấu hình `imageSelector` trỏ vào thẻ `canvas`. Bộ cài đặt sẽ tự động gọi phương thức `.toDataURL('image/jpeg', 0.85)` để trích xuất dữ liệu ảnh. Thuộc tính ảnh lúc này cấu hình là `"src"`.
 * **Trang tải chậm / Lazy Load**: Content script có cơ chế tự động cuộn trang (`autoScrollPage`) để kích hoạt tải ảnh trước khi trích xuất. Hãy đảm bảo CSS Selector khớp đúng sau khi cuộn.
 
-### Bước 3: Cập nhật `config/sites.json`
-Thêm cấu hình mới theo định dạng mẫu:
+### Bước 3: Cập nhật `utils/default_sites.js`
+Thêm cấu hình mới theo định dạng mẫu vào danh sách `DEFAULT_SITES` và mã hóa base64 cấu hình đó cập nhật vào `utils/rules.dat` để đồng bộ GitHub:
 ```json
   "site_key": {
     "name": "Tên Website",
@@ -105,5 +105,5 @@ Extension sở hữu cơ chế tự động dò tìm cấu trúc trang (Heuristi
 
 ## 5. Quy định Đóng gói và Phát hành (Git & Release Hygiene)
 
-* **Các file được phép đưa lên Git**: Chỉ stage các file mã nguồn cần thiết để chạy tiện ích: `manifest.json`, `background/`, `content/`, `popup/`, `config/`, `icons/`, `utils/`, và các file tài liệu hướng dẫn (`README.md`, `DEVELOPMENT.md`, `CHANGELOG.md`, `PRIVACY.md`).
+* **Các file được phép đưa lên Git**: Chỉ stage các file mã nguồn cần thiết để chạy tiện ích: `manifest.json`, `background/`, `content/`, `popup/`, `icons/`, `utils/`, và các file tài liệu hướng dẫn (`README.md`, `DEVELOPMENT.md`, `CHANGELOG.md`, `PRIVACY.md`).
 * **Các file bắt buộc BỎ QUA**: Các tệp phục vụ kiểm thử cục bộ, log lỗi thô, ảnh chụp DOM, cache trình duyệt debug (`chrome-profile-debug/`) tuyệt đối không được đưa lên Git. Hãy khai báo chúng trong `.gitignore`.

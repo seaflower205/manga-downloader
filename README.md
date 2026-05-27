@@ -180,11 +180,11 @@ Site profiles are saved locally using the following format:
 │   ├── popup.css           # Glassmorphism popup stylesheet
 │   ├── search_manager.js   # Unified multi-site search panel manager
 │   └── sites_manager.js    # Site config import/export, prompt builder
-├── config/
-│   └── sites.json          # Pre-packaged sites config database
 ├── icons/                  # Brand assets and graphics
 └── utils/
     ├── security.js         # Input sanitization, URL check, diagnostics
+    ├── default_sites.js    # Pre-packaged sites config database
+    ├── rules.dat           # Base64 encoded site rules for remote sync
     └── jszip.min.js        # JSZip library (MIT License)
 ```
 

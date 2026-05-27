@@ -25,112 +25,7 @@
     }
   }
 
-  // Enrich Naver Webtoon fallback results (e.g. from Google/Yahoo) by extracting real titles & cover images
-  async function enrichNaverResults(results, signal) {
-    const trustedHosts = ['naver.com', 'pstatic.net'];
-    const promises = results.map(async (item) => {
-      if (signal?.aborted) return item;
-      if (item && item.url && (item.url.includes('comic.naver.com') || item.sourceKey === 'naverwebtoon' || item.sourceKey === 'comic')) {
-        try {
-          const urlObj = new URL(item.url);
-          const titleId = urlObj.searchParams.get('titleId');
-          if (titleId) {
-            const listUrl = `https://comic.naver.com/webtoon/list?titleId=${titleId}`;
-            console.log(`Manga Downloader: Enriching Naver Webtoon fallback result for titleId=${titleId}...`);
-            const html = await Network.fetchHtmlWithFallback({ url: listUrl, referer: 'https://comic.naver.com/', timeout: 4000, signal });
-            if (html) {
-              const ogTitleMatch = html.match(/<meta\s+property="og:title"\s+content="([^"]+)"/i) || html.match(/<meta\s+content="([^"]+)"\s+property="og:title"/i);
-              const ogImageMatch = html.match(/<meta\s+property="og:image"\s+content="([^"]+)"/i) || html.match(/<meta\s+content="([^"]+)"\s+property="og:image"/i);
-              
-              if (ogTitleMatch) {
-                const koTitle = ogTitleMatch[1];
-                let cleanTitle = item.title
-                  .replace(/\s*::\s*네이버\s*웹툰.*$/gi, '')
-                  .replace(/\s*-\s*\d+화\s*:\s*네이버\s*웹툰.*$/gi, '')
-                  .trim();
-                
-                if (koTitle && koTitle.toLowerCase() !== cleanTitle.toLowerCase()) {
-                  item.title = `${cleanTitle} (${koTitle})`;
-                } else {
-                  item.title = koTitle || cleanTitle;
-                }
-              }
-              
-              if (ogImageMatch) {
-                const rawImg = ogImageMatch[1];
-                item.thumbnail = Utils.normalizeTrustedHttpUrl(rawImg, trustedHosts, 'https://comic.naver.com/');
-              }
-            }
-            item.url = listUrl;
-          }
-        } catch (err) {
-          if (err.name !== 'AbortError' && !signal?.aborted) {
-            console.warn('Manga Downloader: Failed to enrich Naver Webtoon fallback result:', err);
-          }
-        }
-      }
-      return item;
-    });
-    return Promise.all(promises);
-  }
 
-  // Custom search scraper for Naver Webtoon
-  async function searchNaverWebtoonDirect(query, site, siteKey, signal) {
-    const baseUrl = site.referer || 'https://comic.naver.com/';
-    try {
-      const searchUrl = 'https://comic.naver.com/api/search/all?keyword=' + encodeURIComponent(query);
-      console.log('Naver Webtoon direct: Fetching search API...');
-      const response = await fetch(searchUrl, {
-        headers: {
-          'User-Agent': navigator.userAgent,
-          'Referer': 'https://comic.naver.com/'
-        },
-        signal
-      });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const json = await response.json();
-      const results = [];
-      const trustedHosts = ['naver.com', 'pstatic.net'];
-
-      const parseList = (list) => {
-        if (!list) return;
-        list.forEach(item => {
-          const titleId = String(item.titleId || '').replace(/[^\d]/g, '');
-          if (!titleId) return;
-          let listUrl = 'https://comic.naver.com/webtoon/list?titleId=' + encodeURIComponent(titleId);
-          if (item.webtoonLevelCode === 'BEST_CHALLENGE') {
-            listUrl = 'https://comic.naver.com/bestChallenge/list?titleId=' + encodeURIComponent(titleId);
-          } else if (item.webtoonLevelCode === 'CHALLENGE') {
-            listUrl = 'https://comic.naver.com/challenge/list?titleId=' + encodeURIComponent(titleId);
-          }
-          results.push({
-            title: item.titleName || 'Webtoon Title',
-            author: item.displayAuthor || 'Nhiều tác giả',
-            thumbnail: item.thumbnailUrl ? Utils.normalizeTrustedHttpUrl(item.thumbnailUrl, trustedHosts, baseUrl) : '',
-            url: listUrl,
-            source: site.name || 'Naver Webtoon',
-            sourceKey: siteKey
-          });
-        });
-      };
-
-      if (json) {
-        if (json.searchWebtoonResult && Array.isArray(json.searchWebtoonResult.searchViewList)) {
-          parseList(json.searchWebtoonResult.searchViewList);
-        }
-        if (json.searchBestChallengeResult && Array.isArray(json.searchBestChallengeResult.searchViewList)) {
-          parseList(json.searchBestChallengeResult.searchViewList);
-        }
-        if (json.searchChallengeResult && Array.isArray(json.searchChallengeResult.searchViewList)) {
-          parseList(json.searchChallengeResult.searchViewList);
-        }
-      }
-      return results;
-    } catch (e) {
-      console.error('searchNaverWebtoonDirect error:', e);
-      throw e;
-    }
-  }
 
   // Custom search scraper for Mangaball
   async function searchMangaballDirect(query, site, siteKey, signal) {
@@ -885,11 +780,8 @@
         const site = activeSites[siteKey];
         const siteDomain = deriveSiteDomain(siteKey);
         
-        // Helper to enrich Naver results if needed
+        // Helper to enrich results if needed (currently a passthrough since Naver was removed)
         const processResults = async (rawResults) => {
-          if (siteKey === 'naverwebtoon' || siteKey === 'comic') {
-            return await enrichNaverResults(rawResults, signal);
-          }
           return rawResults;
         };
 
@@ -954,27 +846,7 @@
       if (shouldSearch(key)) {
         const site = activeSites[key];
 
-        // Check for Naver Webtoon specific search override
-        if (key === 'naverwebtoon' || key === 'comic' || (site.domainPattern && (site.domainPattern.includes('naver') || site.domainPattern.includes('comic.naver')))) {
-          promises.push((async () => {
-            const siteResults = [];
-            try {
-              if (signal.aborted) return;
-              console.log('Manga Downloader: Querying Naver Webtoon search API directly...');
-              const items = await searchNaverWebtoonDirect(query, site, key, signal);
-              if (signal.aborted) return;
-              items.forEach(item => siteResults.push(item));
-              if (siteResults.length > 0) {
-                await sendSearchMessageToPopup({ type: 'SEARCH_RESULTS_CHUNK', searchId, results: Utils.normalizeSearchResults(siteResults) });
-              } else {
-                await handleSearchErrorWithYahooFallback(key, new Error('No results from Naver API'));
-              }
-            } catch (err) {
-              await handleSearchErrorWithYahooFallback(key, err);
-            }
-          })());
-          return;
-        }
+
 
         // Check for Mangaball specific search override
         if (key === 'mangaball' || (site.domainPattern && site.domainPattern.includes('mangaball'))) {

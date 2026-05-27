@@ -57,10 +57,7 @@
       return { type: 'Blogger / Blogspot CMS', framework: 'Blogger' };
     }
 
-    // 3. Naver Webtoon SPA
-    if (host.includes('naver.com') || html.includes('wt_viewer') || html.includes('naver.com/webtoon')) {
-      return { type: 'Naver Webtoon (React/SPA)', framework: 'Naver Webtoon' };
-    }
+
 
     // 4. NetTruyen / NhatTruyen Clone Platform (Popular custom framework in Vietnam)
     if (document.querySelector('.reading-detail, .page-chapter') || html.includes('reading-detail') || html.includes('page-chapter')) {

@@ -322,7 +322,7 @@
 
       // Query custom searchable websites in parallel using offscreen parser fallback
       Object.entries(this.popup.allSites).forEach(([key, site]) => {
-        const isDefault = ['mangadex', 'mangakatana', 'urimana', 'theblank', 'twmanga', 'mangaball', 'naverwebtoon', 'mangaplaza', 'baozimh', 'ebookrenta'].includes(key);
+        const isDefault = ['mangadex', 'mangakatana', 'urimana', 'theblank', 'twmanga', 'mangaball', 'nettruyen', 'mangaplaza', 'baozimh', 'ebookrenta'].includes(key);
         if (isDefault) return; // Background worker handles defaults
         if (site.isNsfw) return;
         if (this.popup.disabledSearchSites.includes(key)) return;
@@ -415,7 +415,7 @@
       });
 
       Object.entries(this.popup.allSites).forEach(([key, site]) => {
-        const isDefault = ['mangadex', 'mangakatana', 'urimana', 'theblank', 'twmanga', 'mangaball', 'naverwebtoon', 'mangaplaza', 'baozimh', 'ebookrenta'].includes(key);
+        const isDefault = ['mangadex', 'mangakatana', 'urimana', 'theblank', 'twmanga', 'mangaball', 'nettruyen', 'mangaplaza', 'baozimh', 'ebookrenta'].includes(key);
         if (isDefault) return;
         if (!site.isNsfw) return;
         if (this.popup.disabledSearchSites.includes(key)) return;

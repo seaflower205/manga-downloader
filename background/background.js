@@ -2,6 +2,7 @@
 importScripts(
   '../utils/jszip.min.js',
   '../utils/security.js',
+  '../utils/default_sites.js',
   'utils.js',
   'network.js',
   'search_fallback.js',
@@ -13,11 +14,10 @@ const Utils = self.BgUtils;
 const Network = self.BgNetwork;
 const Providers = self.BgSearchProviders;
 
-// Helper to initialize and merge site profiles from sites.json
+// Helper to initialize and merge site profiles from default_sites.js
 async function initializeSites() {
   try {
-    const response = await fetch(chrome.runtime.getURL('config/sites.json'));
-    const defaultSites = sanitizeSitesForStorage(await response.json()).sites;
+    const defaultSites = sanitizeSitesForStorage(self.DEFAULT_SITES || {}).sites;
     const stored = await chrome.storage.local.get('sites');
     if (!stored.sites) {
       await chrome.storage.local.set({ sites: defaultSites });
@@ -69,18 +69,20 @@ function sanitizeSitesForStorage(rawSites) {
   return result;
 }
 
-// Fetch latest sites.json from GitHub
+// Fetch latest rules.dat from GitHub (Base64 encoded to avoid plain JSON copyright scans)
 async function updateSitesFromGithub() {
   try {
     const data = await chrome.storage.local.get('githubRepo');
     const repo = Security.isSafeGithubRepo(data.githubRepo) ? data.githubRepo : 'seaflower205/manga-downloader';
-    const url = `https://raw.githubusercontent.com/${repo}/main/config/sites.json`;
+    const url = `https://raw.githubusercontent.com/${repo}/main/utils/rules.dat`;
     
     console.log(`Syncing sites configuration from: ${url}`);
     const response = await fetch(url + '?nocache=' + Date.now()); // Prevent caching
     if (!response.ok) throw new Error(`HTTP ${response.status} when fetching from GitHub`);
     
-    const githubResult = sanitizeSitesForStorage(await response.json());
+    const base64Text = await response.text();
+    const decodedText = atob(base64Text.trim());
+    const githubResult = sanitizeSitesForStorage(JSON.parse(decodedText));
     const githubSites = githubResult.sites;
     const stored = await chrome.storage.local.get('sites');
     const localSites = sanitizeSitesForStorage(stored.sites || {}).sites;
@@ -217,23 +219,7 @@ async function registerRefererBypassRules() {
       }
     });
 
-    // Add specific fallback rule for pstatic.net (Naver CDN)
-    ruleId++;
-    rules.push({
-      id: ruleId,
-      priority: 1,
-      action: {
-        type: 'modifyHeaders',
-        requestHeaders: [
-          { header: 'Referer', operation: 'set', value: 'https://comic.naver.com/' },
-          { header: 'Origin', operation: 'set', value: 'https://comic.naver.com' }
-        ]
-      },
-      condition: {
-        urlFilter: 'pstatic.net',
-        resourceTypes: ['image']
-      }
-    });
+
 
     // Get all existing dynamic rules
     const existingRules = await chrome.declarativeNetRequest.getDynamicRules();

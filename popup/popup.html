@@ -239,12 +239,12 @@
             <label for="json-config-input" style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); display: block; margin-bottom: 6px;">Nội dung cấu hình JSON</label>
             <textarea id="json-config-input" placeholder='Dán hoặc nhập cấu hình JSON ở đây. Ví dụ:
 {
-  "name": "Naver Webtoon",
-  "domainPattern": "comic\\.naver\\.com",
-  "imageSelector": ".wt_viewer img",
-  "imageUrlAttribute": "src",
-  "titleSelector": "#titleName_toolbar",
-  "chapterSelector": "#subTitle_toolbar"
+  "name": "NetTruyen",
+  "domainPattern": "nettruyen(?:new|co|top|me|tv)?\\.com|nhattruyen",
+  "imageSelector": ".page-chapter img",
+  "imageUrlAttribute": "data-original|src",
+  "titleSelector": ".txt-primary a",
+  "chapterSelector": "h1.txt-primary"
 }' style="width: 100%; height: 210px; font-family: monospace; font-size: 11px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-primary); padding: 8px; resize: vertical; box-sizing: border-box; outline: none;"></textarea>
           </div>
 
@@ -361,6 +361,7 @@
     </footer>
   </div>
   <script src="../utils/security.js"></script>
+  <script src="../utils/default_sites.js"></script>
   <script src="theme_manager.js"></script>
   <script src="sites_manager.js"></script>
   <script src="search_manager.js"></script>

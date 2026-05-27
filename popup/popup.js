@@ -1067,7 +1067,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           if (diag.isChapterPage !== false) {
             if (diag.scrollY < 250) {
               appendStep('CẢNH BÁO: Vị trí cuộn trang hiện tại bằng 0 (đang ở đầu trang).', 'warning');
-              appendStep('Nhiều website truyện tranh (ví dụ: Naver Webtoon, EbookRenta...) chỉ thực sự tải ảnh hoặc giải mã canvas khi người dùng cuộn chuột qua. Hãy cuộn từ từ xuống cuối trang truyện rồi chạy lại chẩn đoán.', 'info');
+              appendStep('Nhiều website truyện tranh (ví dụ: MangaPlaza, EbookRenta...) chỉ thực sự tải ảnh hoặc giải mã canvas khi người dùng cuộn chuột qua. Hãy cuộn từ từ xuống cuối trang truyện rồi chạy lại chẩn đoán.', 'info');
             } else {
               appendStep(`Vị trí cuộn trang hiện tại: ${Math.round(diag.scrollY)}px.`, 'success');
             }
@@ -1436,8 +1436,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     resetBtn.addEventListener('click', async () => {
       if (!confirm('Bạn có chắc chắn muốn nạp lại danh sách cấu hình mặc định? Việc này sẽ ghi đè các cấu hình trùng tên.')) return;
       try {
-        const response = await fetch(chrome.runtime.getURL('config/sites.json'));
-        const sites = validateAndStoreSites(await response.json());
+        const sites = validateAndStoreSites(self.DEFAULT_SITES || {});
         const stored = await chrome.storage.local.get('sites');
         const mergedSites = validateAndStoreSites({ ...(stored.sites || {}), ...sites });
         await chrome.storage.local.set({ sites: mergedSites });
