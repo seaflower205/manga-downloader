@@ -1,4 +1,4 @@
-// Main Service Worker Entry Point for Manga Downloader Premium
+// Main Service Worker Entry Point for Manga Downloader
 importScripts(
   '../utils/jszip.min.js',
   '../utils/security.js',

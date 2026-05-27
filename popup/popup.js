@@ -1,4 +1,4 @@
-// Popup Dashboard coordinator for Manga Downloader Premium
+// Popup Dashboard coordinator for Manga Downloader
 document.addEventListener('DOMContentLoaded', async () => {
   'use strict';
 
@@ -1235,7 +1235,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const logoArea = document.querySelector('.logo-area');
   if (logoArea) {
     logoArea.style.cursor = 'pointer';
-    logoArea.title = 'Manga Downloader Premium';
+    logoArea.title = 'Manga Downloader';
     logoArea.addEventListener('click', async () => {
       logoClickCount++;
       if (logoClickTimeout) clearTimeout(logoClickTimeout);

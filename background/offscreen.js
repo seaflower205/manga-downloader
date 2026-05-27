@@ -1,4 +1,4 @@
-// Offscreen Document Script for Manga Downloader Premium
+// Offscreen Document Script for Manga Downloader
 const activeLoads = new Map(); // Maps requestId to { resolve, reject, timeoutId, iframe }
 
 // Listen for messages from the Background Service Worker
