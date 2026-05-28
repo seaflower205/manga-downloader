@@ -219,7 +219,16 @@
       const bridge = document.getElementById(BRIDGE_ID);
       if (bridge) {
         Detector.readBridge();
-        const observer = new MutationObserver(() => Detector.readBridge());
+        let bridgeReadPending = false;
+        const observer = new MutationObserver(() => {
+          if (!bridgeReadPending) {
+            bridgeReadPending = true;
+            requestAnimationFrame(() => {
+              Detector.readBridge();
+              bridgeReadPending = false;
+            });
+          }
+        });
         observer.observe(bridge, { childList: true, characterData: true, subtree: true });
       }
 

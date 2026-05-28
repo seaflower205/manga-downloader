@@ -1,0 +1,3 @@
+## 2024-06-03 - Throttling Continuous MutationObserver in Vanilla JS
+**Learning:** The Chrome extension relies on a `MutationObserver` in `content.js` to watch for DOM changes. Operations triggered by it run frequently. Running expensive operations like JSON.parse and URL normalization continuously in un-throttled callbacks blocks the main thread, causing starvation.
+**Action:** When optimizing continuous DOM observers like `MutationObserver` in vanilla JS, prefer throttling (e.g., using `requestAnimationFrame` or boolean flags) over pure setTimeout debouncing. This ensures efficient batching of DOM reads without causing starvation during continuous page animations or dynamically loading elements.
