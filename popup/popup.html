@@ -18,7 +18,7 @@
           <span class="version-label">v1.0.0</span>
         </div>
       </div>
-      <button id="btn-theme-toggle" class="btn-theme-toggle" title="Chuyển chế độ Sáng/Tối/Đen trắng">
+      <button id="btn-theme-toggle" class="btn-theme-toggle" title="Chuyển chế độ Sáng/Tối/Đen trắng" aria-label="Chuyển đổi giao diện Sáng/Tối/Đen trắng">
         <!-- Sun icon (shown in light theme) -->
         <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
         <!-- Moon icon (shown in dark theme) -->
@@ -30,27 +30,27 @@
 
     <!-- Navigation Tabs -->
     <nav class="app-tabs">
-      <button class="tab-btn active" data-tab="sites-list">
+      <button class="tab-btn active" data-tab="sites-list" aria-label="Tab Website">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
         <span>Website</span>
       </button>
-      <button class="tab-btn nsfw-only-tab" data-tab="nsfw-list" style="display: none;">
+      <button class="tab-btn nsfw-only-tab" data-tab="nsfw-list" style="display: none;" aria-label="Tab Website 18+">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
         <span style="color: #f43f5e; font-weight: 700;">18+</span>
       </button>
-      <button class="tab-btn" data-tab="search-manga-tab">
+      <button class="tab-btn" data-tab="search-manga-tab" aria-label="Tab Tìm Truyện">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <span>Tìm Truyện</span>
       </button>
-      <button class="tab-btn nsfw-only-tab" data-tab="search-nsfw-tab" style="display: none;">
+      <button class="tab-btn nsfw-only-tab" data-tab="search-nsfw-tab" style="display: none;" aria-label="Tab Tìm Truyện 18+">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <span style="color: #f43f5e; font-weight: 700;">Tìm 18+</span>
       </button>
-      <button class="tab-btn" data-tab="add-site">
+      <button class="tab-btn" data-tab="add-site" aria-label="Tab Cấu Hình">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
         <span>Cấu Hình</span>
       </button>
-      <button class="tab-btn" data-tab="diagnostics-tab">
+      <button class="tab-btn" data-tab="diagnostics-tab" aria-label="Tab Trình Tạo Lệnh AI">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275Z"/>
           <path d="m5 3 1 2.5L8.5 6 6 7 5 9.5 4 7 1.5 6 4 5Z"/>
@@ -68,11 +68,11 @@
         <div class="section-title-row">
           <h2>Website đã hỗ trợ</h2>
           <div class="header-action-group">
-            <button id="btn-sync-github" class="btn-action-small github-sync" title="Đồng bộ từ GitHub">
+            <button id="btn-sync-github" class="btn-action-small github-sync" title="Đồng bộ từ GitHub" aria-label="Đồng bộ cấu hình từ GitHub">
               <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19A3.5 3.5 0 0 0 21 15.5c0-2.79-2.54-4.5-5-4.5-.42-1.89-1.72-3.13-4-3.13a4.7 4.7 0 0 0-4.66 4.31c-2 .22-3.34 1.45-3.34 3.32A3.5 3.5 0 0 0 7.5 19H17.5Z"/><path d="M12 12v6M9 15l3-3 3 3"/></svg>
               <span>Sync GitHub</span>
             </button>
-            <button id="btn-reset-defaults" class="btn-action-small reset-defaults" title="Đặt lại mặc định">
+            <button id="btn-reset-defaults" class="btn-action-small reset-defaults" title="Đặt lại mặc định" aria-label="Đặt lại cấu hình mặc định">
               <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg>
               <span>Reset</span>
             </button>
@@ -209,14 +209,14 @@
       <section id="add-site" class="tab-content">
         <h2>Cấu hình trang truyện mới</h2>
         <!-- Hidden helper buttons for programmatic access -->
-        <button type="button" id="btn-paste-ai-config" style="display: none;"></button>
+        <button type="button" id="btn-paste-ai-config" style="display: none;" aria-label="Dán cấu hình AI"></button>
 
         <div style="display: flex; gap: 10px; margin-bottom: 14px;">
-          <button type="button" id="btn-export-sites" class="btn-submit" style="background: linear-gradient(135deg, #10B981, #059669); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 11px; height: 36px; padding: 0;">
+          <button type="button" id="btn-export-sites" class="btn-submit" aria-label="Xuất cấu hình" style="background: linear-gradient(135deg, #10B981, #059669); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 11px; height: 36px; padding: 0;">
             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
             <span>Xuất cấu hình</span>
           </button>
-          <button type="button" id="btn-import-sites" class="btn-submit" style="background: linear-gradient(135deg, #3B82F6, #1D4ED8); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2); flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 11px; height: 36px; padding: 0;">
+          <button type="button" id="btn-import-sites" class="btn-submit" aria-label="Nhập cấu hình từ file" style="background: linear-gradient(135deg, #3B82F6, #1D4ED8); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2); flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 11px; height: 36px; padding: 0;">
             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 14 12 9 7 14"/><line x1="12" x2="12" y1="9" y2="21"/></svg>
             <span>Nhập cấu hình từ file</span>
           </button>
@@ -269,7 +269,7 @@
           </div>
         </div>
 
-        <button type="button" id="btn-copy-prompt-large" class="btn-submit" style="margin-top: 16px; height: 38px; display: flex; align-items: center; justify-content: center; gap: 6px; font-weight: 700; background: linear-gradient(135deg, #3B82F6, #1D4ED8); border-color: rgba(255,255,255,0.08); font-size: 12.5px; width: 100%;">
+        <button type="button" id="btn-copy-prompt-large" class="btn-submit" aria-label="Sao chép câu lệnh AI" style="margin-top: 16px; height: 38px; display: flex; align-items: center; justify-content: center; gap: 6px; font-weight: 700; background: linear-gradient(135deg, #3B82F6, #1D4ED8); border-color: rgba(255,255,255,0.08); font-size: 12.5px; width: 100%;">
           <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
           <span>Sao chép câu lệnh AI</span>
         </button>
@@ -283,11 +283,11 @@
             Chọn Giao Diện Mẫu:
           </div>
           <div class="theme-presets-row" style="display: flex; gap: 10px; margin-bottom: 16px; align-items: center;">
-            <button type="button" class="theme-preset-btn" data-preset="cyberpunk" style="background: linear-gradient(135deg, #a855f7, #f43f5e); border: 2px solid rgba(255,255,255,0.15); width: 28px; height: 28px; border-radius: 50%; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; box-shadow: 0 0 10px rgba(168,85,247,0.3); outline: none;" title="Cyberpunk Neon"></button>
-            <button type="button" class="theme-preset-btn" data-preset="sakura" style="background: linear-gradient(135deg, #ec4899, #f43f5e); border: 2px solid rgba(255,255,255,0.15); width: 28px; height: 28px; border-radius: 50%; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; box-shadow: 0 0 10px rgba(236,72,153,0.3); outline: none;" title="Sakura Blossom"></button>
-            <button type="button" class="theme-preset-btn" data-preset="matrix" style="background: linear-gradient(135deg, #10b981, #34d399); border: 2px solid rgba(255,255,255,0.15); width: 28px; height: 28px; border-radius: 50%; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; box-shadow: 0 0 10px rgba(16,185,129,0.3); outline: none;" title="Hacker Matrix"></button>
-            <button type="button" class="theme-preset-btn" data-preset="ocean" style="background: linear-gradient(135deg, #0ea5e9, #22d3ee); border: 2px solid rgba(255,255,255,0.15); width: 28px; height: 28px; border-radius: 50%; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; box-shadow: 0 0 10px rgba(14,165,233,0.3); outline: none;" title="Ocean Breeze"></button>
-            <button type="button" class="theme-preset-btn" data-preset="sunset" style="background: linear-gradient(135deg, #f97316, #eab308); border: 2px solid rgba(255,255,255,0.15); width: 28px; height: 28px; border-radius: 50%; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; box-shadow: 0 0 10px rgba(249,115,22,0.3); outline: none;" title="Sunset Glow"></button>
+            <button type="button" class="theme-preset-btn" data-preset="cyberpunk" style="background: linear-gradient(135deg, #a855f7, #f43f5e); border: 2px solid rgba(255,255,255,0.15); width: 28px; height: 28px; border-radius: 50%; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; box-shadow: 0 0 10px rgba(168,85,247,0.3); outline: none;" title="Cyberpunk Neon" aria-label="Áp dụng giao diện Cyberpunk Neon"></button>
+            <button type="button" class="theme-preset-btn" data-preset="sakura" style="background: linear-gradient(135deg, #ec4899, #f43f5e); border: 2px solid rgba(255,255,255,0.15); width: 28px; height: 28px; border-radius: 50%; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; box-shadow: 0 0 10px rgba(236,72,153,0.3); outline: none;" title="Sakura Blossom" aria-label="Áp dụng giao diện Sakura Blossom"></button>
+            <button type="button" class="theme-preset-btn" data-preset="matrix" style="background: linear-gradient(135deg, #10b981, #34d399); border: 2px solid rgba(255,255,255,0.15); width: 28px; height: 28px; border-radius: 50%; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; box-shadow: 0 0 10px rgba(16,185,129,0.3); outline: none;" title="Hacker Matrix" aria-label="Áp dụng giao diện Hacker Matrix"></button>
+            <button type="button" class="theme-preset-btn" data-preset="ocean" style="background: linear-gradient(135deg, #0ea5e9, #22d3ee); border: 2px solid rgba(255,255,255,0.15); width: 28px; height: 28px; border-radius: 50%; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; box-shadow: 0 0 10px rgba(14,165,233,0.3); outline: none;" title="Ocean Breeze" aria-label="Áp dụng giao diện Ocean Breeze"></button>
+            <button type="button" class="theme-preset-btn" data-preset="sunset" style="background: linear-gradient(135deg, #f97316, #eab308); border: 2px solid rgba(255,255,255,0.15); width: 28px; height: 28px; border-radius: 50%; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; box-shadow: 0 0 10px rgba(249,115,22,0.3); outline: none;" title="Sunset Glow" aria-label="Áp dụng giao diện Sunset Glow"></button>
           </div>
           <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 8px; line-height: 1.45; border-top: 1px dashed var(--border-glass); padding-top: 10px;">
             Tự Thiết Kế / Tải lên file:
@@ -297,14 +297,14 @@
             </ul>
           </div>
           <div style="display: flex; gap: 8px; margin-top: 10px;">
-            <button type="button" id="btn-upload-theme" class="btn-action-small" style="flex: 1; height: 32px; justify-content: center; font-size: 11px; font-weight: 600;">
+            <button type="button" id="btn-upload-theme" class="btn-action-small" aria-label="Chọn file giao diện" style="flex: 1; height: 32px; justify-content: center; font-size: 11px; font-weight: 600;">
               <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
               <span style="margin-left: 4px;">Chọn file giao diện</span>
             </button>
-            <button type="button" id="btn-export-theme" class="btn-action-small" style="height: 32px; padding: 0 10px;" title="Xuất giao diện hiện tại thành file JSON">
+            <button type="button" id="btn-export-theme" class="btn-action-small" aria-label="Xuất giao diện hiện tại thành file JSON" style="height: 32px; padding: 0 10px;" title="Xuất giao diện hiện tại thành file JSON">
               <span>Xuất</span>
             </button>
-            <button type="button" id="btn-reset-theme" class="btn-action-small reset-defaults" style="height: 32px; padding: 0 10px;" title="Khôi phục giao diện mặc định">
+            <button type="button" id="btn-reset-theme" class="btn-action-small reset-defaults" aria-label="Khôi phục giao diện mặc định" style="height: 32px; padding: 0 10px;" title="Khôi phục giao diện mặc định">
               <span>Reset</span>
             </button>
             <input type="file" id="theme-file-input" accept=".json,image/*" style="display: none;">
@@ -315,11 +315,11 @@
           <div style="display: flex; flex-direction: column; gap: 8px;">
             <textarea id="theme-text-input" class="theme-customize-textarea" placeholder='Ví dụ: {"themeName": "Giao diện Đỏ", "color-primary": "#ef4444", "bg-main": "radial-gradient(...)"}'></textarea>
             <div style="display: flex; gap: 8px;">
-              <button type="button" id="btn-import-theme-text" class="btn-action-small" style="flex: 1; height: 30px; justify-content: center; font-size: 11px; font-weight: 600;">
+              <button type="button" id="btn-import-theme-text" class="btn-action-small" aria-label="Áp dụng mã giao diện" style="flex: 1; height: 30px; justify-content: center; font-size: 11px; font-weight: 600;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                 <span style="margin-left: 4px;">Áp dụng mã</span>
               </button>
-              <button type="button" id="btn-copy-theme-prompt" class="btn-action-small" style="flex: 1; height: 30px; justify-content: center; font-size: 11px; font-weight: 600; border-color: rgba(59, 130, 246, 0.3); background: rgba(59, 130, 246, 0.08);" title="Sao chép câu lệnh gửi cho AI (Gemini, ChatGPT...) để tạo giao diện theo ý bạn">
+              <button type="button" id="btn-copy-theme-prompt" class="btn-action-small" aria-label="Sao chép câu lệnh AI tạo giao diện" style="flex: 1; height: 30px; justify-content: center; font-size: 11px; font-weight: 600; border-color: rgba(59, 130, 246, 0.3); background: rgba(59, 130, 246, 0.08);" title="Sao chép câu lệnh gửi cho AI (Gemini, ChatGPT...) để tạo giao diện theo ý bạn">
                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                 <span style="margin-left: 4px;">Lấy Prompt AI</span>
               </button>
@@ -331,13 +331,13 @@
               Chọn giao diện muốn áp dụng:
             </div>
             <div style="display: flex; gap: 6px;">
-              <button type="button" id="btn-apply-target-manga" class="btn-action-small" style="flex: 1; height: 30px; justify-content: center; font-size: 11px; font-weight: 600;" title="Chỉ áp dụng cho giao diện Manga thường">
+              <button type="button" id="btn-apply-target-manga" class="btn-action-small" aria-label="Chỉ áp dụng cho giao diện Manga thường" style="flex: 1; height: 30px; justify-content: center; font-size: 11px; font-weight: 600;" title="Chỉ áp dụng cho giao diện Manga thường">
                 <span>Manga</span>
               </button>
-              <button type="button" id="btn-apply-target-hentai" class="btn-action-small" style="flex: 1; height: 30px; justify-content: center; font-size: 11px; font-weight: 600;" title="Chỉ áp dụng cho giao diện Hentai (NSFW)">
+              <button type="button" id="btn-apply-target-hentai" class="btn-action-small" aria-label="Chỉ áp dụng cho giao diện Hentai (NSFW)" style="flex: 1; height: 30px; justify-content: center; font-size: 11px; font-weight: 600;" title="Chỉ áp dụng cho giao diện Hentai (NSFW)">
                 <span>Hentai</span>
               </button>
-              <button type="button" id="btn-apply-target-both" class="btn-action-small" style="flex: 1; height: 30px; justify-content: center; font-size: 11px; font-weight: 600; border-color: var(--color-primary); background: rgba(59, 130, 246, 0.05);" title="Áp dụng cho cả hai giao diện Manga và Hentai">
+              <button type="button" id="btn-apply-target-both" class="btn-action-small" aria-label="Áp dụng cho cả hai giao diện Manga và Hentai" style="flex: 1; height: 30px; justify-content: center; font-size: 11px; font-weight: 600; border-color: var(--color-primary); background: rgba(59, 130, 246, 0.05);" title="Áp dụng cho cả hai giao diện Manga và Hentai">
                 <span>Cả hai</span>
               </button>
             </div>
