@@ -219,7 +219,20 @@
       const bridge = document.getElementById(BRIDGE_ID);
       if (bridge) {
         Detector.readBridge();
-        const observer = new MutationObserver(() => Detector.readBridge());
+        let isReadBridgeScheduled = false;
+
+        // ⚡ Bolt Optimization: Throttle the MutationObserver callback using requestAnimationFrame.
+        // Impact: Prevents callback starvation and main-thread blocking when the DOM is
+        // aggressively modified, batching all readBridge() calls into a single frame execution.
+        const observer = new MutationObserver(() => {
+          if (!isReadBridgeScheduled) {
+            isReadBridgeScheduled = true;
+            window.requestAnimationFrame(() => {
+              Detector.readBridge();
+              isReadBridgeScheduled = false;
+            });
+          }
+        });
         observer.observe(bridge, { childList: true, characterData: true, subtree: true });
       }
 

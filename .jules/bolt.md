@@ -1,0 +1,3 @@
+## 2024-05-24 - Throttling DOM Observers in Vanilla JS
+**Learning:** Continuous DOM observers like `MutationObserver` in vanilla JS should be throttled (e.g., using `requestAnimationFrame` or boolean flags) instead of pure setTimeout debouncing. This ensures efficient batching of DOM reads without causing starvation during continuous page animations or dynamically loading elements.
+**Action:** Always wrap frequent DOM observer callbacks with a `requestAnimationFrame` and boolean flag throttle to avoid blocking the main thread.
