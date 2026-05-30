@@ -18,7 +18,7 @@
           <span class="version-label">v1.0.0</span>
         </div>
       </div>
-      <button id="btn-theme-toggle" class="btn-theme-toggle" title="Chuyển chế độ Sáng/Tối/Đen trắng">
+      <button id="btn-theme-toggle" class="btn-theme-toggle" title="Chuyển chế độ Sáng/Tối/Đen trắng" aria-label="Chuyển chế độ giao diện">
         <!-- Sun icon (shown in light theme) -->
         <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
         <!-- Moon icon (shown in dark theme) -->
@@ -29,29 +29,29 @@
     </header>
 
     <!-- Navigation Tabs -->
-    <nav class="app-tabs">
-      <button class="tab-btn active" data-tab="sites-list">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+    <nav class="app-tabs" role="tablist" aria-label="Menu chức năng chính">
+      <button class="tab-btn active" id="tab-sites-list" data-tab="sites-list" role="tab" aria-selected="true" aria-controls="sites-list">
+        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
         <span>Website</span>
       </button>
-      <button class="tab-btn nsfw-only-tab" data-tab="nsfw-list" style="display: none;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <button class="tab-btn nsfw-only-tab" id="tab-nsfw-list" data-tab="nsfw-list" style="display: none;" role="tab" aria-selected="false" aria-controls="nsfw-list">
+        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
         <span style="color: #f43f5e; font-weight: 700;">18+</span>
       </button>
-      <button class="tab-btn" data-tab="search-manga-tab">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <button class="tab-btn" id="tab-search-manga-tab" data-tab="search-manga-tab" role="tab" aria-selected="false" aria-controls="search-manga-tab">
+        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <span>Tìm Truyện</span>
       </button>
-      <button class="tab-btn nsfw-only-tab" data-tab="search-nsfw-tab" style="display: none;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <button class="tab-btn nsfw-only-tab" id="tab-search-nsfw-tab" data-tab="search-nsfw-tab" style="display: none;" role="tab" aria-selected="false" aria-controls="search-nsfw-tab">
+        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <span style="color: #f43f5e; font-weight: 700;">Tìm 18+</span>
       </button>
-      <button class="tab-btn" data-tab="add-site">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+      <button class="tab-btn" id="tab-add-site" data-tab="add-site" role="tab" aria-selected="false" aria-controls="add-site">
+        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
         <span>Cấu Hình</span>
       </button>
-      <button class="tab-btn" data-tab="diagnostics-tab">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <button class="tab-btn" id="tab-diagnostics-tab" data-tab="diagnostics-tab" role="tab" aria-selected="false" aria-controls="diagnostics-tab">
+        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275Z"/>
           <path d="m5 3 1 2.5L8.5 6 6 7 5 9.5 4 7 1.5 6 4 5Z"/>
         </svg>
@@ -64,7 +64,7 @@
       <div id="status-notification-area"></div>
 
       <!-- Supported Sites Tab -->
-      <section id="sites-list" class="tab-content active">
+      <section id="sites-list" class="tab-content active" role="tabpanel" aria-labelledby="tab-sites-list">
         <div class="section-title-row">
           <h2>Website đã hỗ trợ</h2>
           <div class="header-action-group">
@@ -91,7 +91,7 @@
       </section>
 
       <!-- NSFW / 18+ Tab Content -->
-      <section id="nsfw-list" class="tab-content">
+      <section id="nsfw-list" class="tab-content" role="tabpanel" aria-labelledby="tab-nsfw-list">
         <div class="section-title-row">
           <h2 style="color: #f43f5e; display: flex; align-items: center; gap: 6px;">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
@@ -105,7 +105,7 @@
       </section>
 
       <!-- Search Manga Tab -->
-      <section id="search-manga-tab" class="tab-content">
+      <section id="search-manga-tab" class="tab-content" role="tabpanel" aria-labelledby="tab-search-manga-tab">
         <h2>Tìm kiếm truyện & tác giả</h2>
         <div class="search-wrapper">
           <span class="search-icon">
@@ -154,7 +154,7 @@
       </section>
 
       <!-- Search NSFW Manga Tab -->
-      <section id="search-nsfw-tab" class="tab-content">
+      <section id="search-nsfw-tab" class="tab-content" role="tabpanel" aria-labelledby="tab-search-nsfw-tab">
         <h2 style="color: #f43f5e; display: flex; align-items: center; gap: 6px;">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
           Tìm kiếm truyện 18+
@@ -206,7 +206,7 @@
       </section>
 
       <!-- Add/Edit Config Tab -->
-      <section id="add-site" class="tab-content">
+      <section id="add-site" class="tab-content" role="tabpanel" aria-labelledby="tab-add-site">
         <h2>Cấu hình trang truyện mới</h2>
         <!-- Hidden helper buttons for programmatic access -->
         <button type="button" id="btn-paste-ai-config" style="display: none;"></button>
@@ -246,7 +246,7 @@
       </section>
 
       <!-- AI Prompt Tab -->
-      <section id="diagnostics-tab" class="tab-content">
+      <section id="diagnostics-tab" class="tab-content" role="tabpanel" aria-labelledby="tab-diagnostics-tab">
         <div class="section-title-row">
           <h2>Trình Tạo Lệnh AI (Prompt)</h2>
         </div>
